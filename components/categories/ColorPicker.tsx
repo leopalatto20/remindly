@@ -39,7 +39,6 @@ interface SliderProps {
   value: number;
   onValueChange: (v: number) => void;
   colors: string[];
-  label?: string;
 }
 
 function ColorSlider({ value, onValueChange, colors }: SliderProps) {
@@ -69,7 +68,7 @@ function ColorSlider({ value, onValueChange, colors }: SliderProps) {
 
   const thumbStyle = useAnimatedStyle(() => ({
     transform: [
-      { translateX: pos.value * Math.max(width.value - 28, 0) },
+      { translateX: pos.value * Math.max(width.value - 36, 0) },
     ],
   }));
 
