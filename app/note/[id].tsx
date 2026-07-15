@@ -2,13 +2,14 @@ import { useCallback, useState } from "react";
 import {
   Alert,
   Pressable,
+  SafeAreaView,
   ScrollView,
   Text,
   TextInput,
   View,
 } from "react-native";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { Check, Pencil, Trash2 } from "lucide-react-native";
+import { Check, Pencil, Trash2, ArrowLeft } from "lucide-react-native";
 
 import { getNote, updateNoteBody, deleteNote, type Note } from "../../lib/db/notes";
 import { getTodosByNote, createTodo, toggleTodoCompleted, type Todo } from "../../lib/db/todos";
@@ -106,6 +107,7 @@ export default function NoteDetailScreen() {
 
   return (
     <ThemedScreen>
+      <SafeAreaView style={{ flex: 1 }}>
       <View
         style={{
           flexDirection: "row",
@@ -116,7 +118,7 @@ export default function NoteDetailScreen() {
         }}
       >
         <Pressable onPress={() => router.back()}>
-          <Text style={{ color: colors.primary, fontSize: 16 }}>Back</Text>
+          <ArrowLeft size={20} color={colors.primary} />
         </Pressable>
         <View style={{ flexDirection: "row", gap: 12 }}>
           {isEditing ? (
@@ -298,6 +300,7 @@ export default function NoteDetailScreen() {
         visible={toastVisible}
         onHide={() => setToastVisible(false)}
       />
+    </SafeAreaView>
     </ThemedScreen>
   );
 }

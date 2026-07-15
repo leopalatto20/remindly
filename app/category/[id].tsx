@@ -3,13 +3,14 @@ import {
   Alert,
   FlatList,
   Modal,
+  SafeAreaView,
   Text,
   TextInput,
   View,
 } from "react-native";
 import { Pressable, ScrollView } from "react-native-gesture-handler";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { Trash2 } from "lucide-react-native";
+import { Trash2, ArrowLeft } from "lucide-react-native";
 
 import {
   getCategory,
@@ -86,6 +87,20 @@ export default function CategoryDetailScreen() {
 
   return (
     <ThemedScreen>
+      <SafeAreaView style={{ flex: 1 }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          paddingHorizontal: 16,
+          paddingVertical: 8,
+        }}
+      >
+        <Pressable onPress={() => router.back()}>
+          <ArrowLeft size={20} color={colors.primary} />
+        </Pressable>
+      </View>
+
       <View
         style={{
           flexDirection: "row",
@@ -336,6 +351,7 @@ export default function CategoryDetailScreen() {
           </View>
         </View>
       </Modal>
+    </SafeAreaView>
     </ThemedScreen>
   );
 }
