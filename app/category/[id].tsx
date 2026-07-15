@@ -9,17 +9,20 @@ import {
 } from "react-native";
 import { Pressable, ScrollView } from "react-native-gesture-handler";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { Trash2 } from "lucide-react-native";
 
 import {
   getCategory,
   updateCategory,
+  deleteCategory,
   type Category,
 } from "../../lib/db/categories";
-import { getNotesByCategory, createNote, type Note } from "../../lib/db/notes";
+import { getNotesByCategory, createNote, deleteNote, type Note } from "../../lib/db/notes";
 import { IconPicker } from "../../components/categories/IconPicker";
 import { ColorPicker } from "../../components/categories/ColorPicker";
 import { DynamicIcon } from "../../lib/icons/DynamicIcon";
 import { ThemedScreen } from "../../components/ui/ThemedScreen";
+import { SwipeableDeleteAction } from "../../components/ui/SwipeableDeleteAction";
 import { useThemeColors } from "../../lib/theme/colors";
 
 export default function CategoryDetailScreen() {
@@ -57,6 +60,20 @@ export default function CategoryDetailScreen() {
     setNewTitle("");
     setShowCreate(false);
     router.push(`/note/${noteId}`);
+  }
+
+  function handleDeleteNote(item: Note) {
+    Alert.alert("Delete Note", `Delete "${item.title}"?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          await deleteNote(item.id);
+          if (category) loadData(category.id);
+        },
+      },
+    ]);
   }
 
   if (!category) {
@@ -97,6 +114,28 @@ export default function CategoryDetailScreen() {
         </View>
         <Pressable
           onPress={() => {
+            Alert.alert(
+              "Delete Category",
+              `Delete "${category.name}" and all its notes?`,
+              [
+                { text: "Cancel", style: "cancel" },
+                {
+                  text: "Delete",
+                  style: "destructive",
+                  onPress: async () => {
+                    await deleteCategory(category.id);
+                    router.back();
+                  },
+                },
+              ]
+            );
+          }}
+          style={{ marginRight: 12 }}
+        >
+          <Trash2 size={20} color={colors.danger} />
+        </Pressable>
+        <Pressable
+          onPress={() => {
             setEditName(category.name);
             setEditIcon(category.icon);
             setEditColor(category.color);
@@ -113,44 +152,28 @@ export default function CategoryDetailScreen() {
           keyExtractor={(item) => String(item.id)}
           contentContainerStyle={{ padding: 16 }}
           renderItem={({ item }) => (
-            <Pressable
-              onPress={() => router.push(`/note/${item.id}`)}
-              onLongPress={() => {
-                Alert.alert(
-                  "Delete Note",
-                  `Delete "${item.title}"?`,
-                  [
-                    { text: "Cancel", style: "cancel" },
-                    {
-                      text: "Delete",
-                      style: "destructive",
-                      onPress: async () => {
-                        const { deleteNote } = await import("../../lib/db/notes");
-                        await deleteNote(item.id);
-                        loadData(category.id);
-                      },
-                    },
-                  ]
-                );
-              }}
-              style={{
-                padding: 16,
-                backgroundColor: colors.card,
-                borderRadius: 12,
-                marginBottom: 8,
-              }}
-            >
-              <Text style={{ fontSize: 16, fontWeight: "600" }}>
-                {item.title}
-              </Text>
-              <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4 }}>
-                Created: {new Date(item.created_at).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
-              </Text>
-            </Pressable>
+            <SwipeableDeleteAction onDelete={() => handleDeleteNote(item)}>
+              <Pressable
+                onPress={() => router.push(`/note/${item.id}`)}
+                style={{
+                  padding: 16,
+                  backgroundColor: colors.card,
+                  borderRadius: 12,
+                  marginBottom: 8,
+                }}
+              >
+                <Text style={{ fontSize: 16, fontWeight: "600" }}>
+                  {item.title}
+                </Text>
+                <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4 }}>
+                  Created: {new Date(item.created_at).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </Text>
+              </Pressable>
+            </SwipeableDeleteAction>
           )}
           ListEmptyComponent={
             <Text style={{ color: colors.textSecondary, textAlign: "center", paddingTop: 20 }}>

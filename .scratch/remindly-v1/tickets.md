@@ -54,13 +54,13 @@ Work the **frontier**: any ticket whose blockers are all done. For a purely line
 
 **Blocked by:** Fix initial routing.
 
-- [ ] Swipe-to-delete works on category list items
-- [ ] Swipe-to-delete works on note list items
-- [ ] Trash icon in category detail header with confirmation dialog
-- [ ] Trash icon in note detail header with confirmation dialog
-- [ ] Deleting a category cascades to its notes
-- [ ] Deleting a note cascades to its todos
-- [ ] No long-press delete gestures anywhere
+- [x] Swipe-to-delete works on category list items
+- [x] Swipe-to-delete works on note list items
+- [x] Trash icon in category detail header with confirmation dialog
+- [x] Trash icon in note detail header with confirmation dialog
+- [x] Deleting a category cascades to its notes
+- [x] Deleting a note cascades to its todos
+- [x] No long-press delete gestures anywhere
 
 ## Apple Notes-style note editing (view/edit modes)
 

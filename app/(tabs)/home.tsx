@@ -15,6 +15,7 @@ import type { Category } from "../../lib/db/categories";
 import { getUrgentTodos } from "../../lib/db/todos";
 import type { Todo } from "../../lib/db/todos";
 import { ThemedScreen } from "../../components/ui/ThemedScreen";
+import { SwipeableDeleteAction } from "../../components/ui/SwipeableDeleteAction";
 import { useThemeColors } from "../../lib/theme/colors";
 import { IconPicker } from "../../components/categories/IconPicker";
 import { ColorPicker } from "../../components/categories/ColorPicker";
@@ -83,33 +84,34 @@ const [newCatColor, setNewCatColor] = useState("#007AFF");
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={{ padding: 16 }}
         renderItem={({ item }) => (
-          <Pressable
-            onPress={() => router.push(`/category/${item.id}`)}
-            onLongPress={() => handleDeleteCategory(item)}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              padding: 16,
-              backgroundColor: colors.card,
-              borderRadius: 12,
-              marginBottom: 8,
-            }}
-          >
-            <View
+          <SwipeableDeleteAction onDelete={() => handleDeleteCategory(item)}>
+            <Pressable
+              onPress={() => router.push(`/category/${item.id}`)}
               style={{
-                width: 40,
-                height: 40,
-                borderRadius: 20,
-                backgroundColor: item.color + "20",
+                flexDirection: "row",
                 alignItems: "center",
-                justifyContent: "center",
-                marginRight: 12,
+                padding: 16,
+                backgroundColor: colors.card,
+                borderRadius: 12,
+                marginBottom: 8,
               }}
             >
-              <DynamicIcon name={item.icon} size={20} color={item.color} />
-            </View>
-            <Text style={{ fontSize: 16, fontWeight: "600" }}>{item.name}</Text>
-          </Pressable>
+              <View
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  backgroundColor: item.color + "20",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginRight: 12,
+                }}
+              >
+                <DynamicIcon name={item.icon} size={20} color={item.color} />
+              </View>
+              <Text style={{ fontSize: 16, fontWeight: "600" }}>{item.name}</Text>
+            </Pressable>
+          </SwipeableDeleteAction>
         )}
         ListHeaderComponent={
           urgentTodos.length > 0 ? (
