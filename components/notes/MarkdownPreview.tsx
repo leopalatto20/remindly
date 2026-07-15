@@ -1,13 +1,16 @@
 import { Text, View } from "react-native";
+import { useThemeColors } from "../../lib/theme/colors";
 
 interface MarkdownPreviewProps {
   body: string;
 }
 
 export function MarkdownPreview({ body }: MarkdownPreviewProps) {
+  const colors = useThemeColors();
+
   if (!body.trim()) {
     return (
-      <Text style={{ fontSize: 16, color: "#8E8E93", fontStyle: "italic" }}>
+      <Text style={{ fontSize: 16, color: colors.textSecondary, fontStyle: "italic" }}>
         Empty note
       </Text>
     );
@@ -88,7 +91,7 @@ export function MarkdownPreview({ body }: MarkdownPreviewProps) {
         >
           <Text style={{ fontSize: 16, marginRight: 6 }}>{"\u2022"}</Text>
           <Text style={{ fontSize: 16, flex: 1, lineHeight: 22 }}>
-            {renderInline(trimmed.substring(2))}
+            {renderInline(trimmed.substring(2), colors)}
           </Text>
         </View>
       );
@@ -105,7 +108,7 @@ export function MarkdownPreview({ body }: MarkdownPreviewProps) {
               {match[1]}.
             </Text>
             <Text style={{ fontSize: 16, flex: 1, lineHeight: 22 }}>
-              {renderInline(match[2])}
+              {renderInline(match[2], colors)}
             </Text>
           </View>
         );
@@ -117,7 +120,7 @@ export function MarkdownPreview({ body }: MarkdownPreviewProps) {
           key={i}
           style={{ fontSize: 16, lineHeight: 24, marginBottom: 2 }}
         >
-          {renderInline(trimmed)}
+          {renderInline(trimmed, colors)}
         </Text>
       );
     }
@@ -126,7 +129,7 @@ export function MarkdownPreview({ body }: MarkdownPreviewProps) {
   return <View>{elements}</View>;
 }
 
-function renderInline(text: string): React.ReactNode {
+function renderInline(text: string, colors: ReturnType<typeof useThemeColors>): React.ReactNode {
   const parts: React.ReactNode[] = [];
   let remaining = text;
 
@@ -169,7 +172,7 @@ function renderInline(text: string): React.ReactNode {
           key={match.index}
           style={{
             fontFamily: "monospace",
-            backgroundColor: "#F2F2F7",
+            backgroundColor: colors.card,
             paddingHorizontal: 4,
             borderRadius: 3,
           }}

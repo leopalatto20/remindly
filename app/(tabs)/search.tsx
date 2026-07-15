@@ -79,7 +79,9 @@ export default function SearchScreen() {
             backgroundColor: colors.card,
             borderRadius: 10,
             fontSize: 16,
+            color: colors.text,
           }}
+          placeholderTextColor={colors.textSecondary}
           autoFocus
         />
       </View>

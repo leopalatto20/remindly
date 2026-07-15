@@ -50,7 +50,7 @@ export function IconPicker({ selected, onSelect }: IconPickerProps) {
               width: 48,
               height: 48,
               borderRadius: 12,
-              backgroundColor: selected === item.name ? colors.primary + "20" : "#F2F2F7",
+              backgroundColor: selected === item.name ? colors.primary + "20" : colors.card,
               alignItems: "center",
               justifyContent: "center",
               borderWidth: selected === item.name ? 2 : 0,

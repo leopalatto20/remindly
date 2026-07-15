@@ -145,7 +145,11 @@ export default function CategoryDetailScreen() {
                 {item.title}
               </Text>
               <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4 }}>
-                Updated: {new Date(item.updated_at).toLocaleDateString()}
+                Created: {new Date(item.created_at).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
               </Text>
             </Pressable>
           )}
@@ -170,7 +174,9 @@ export default function CategoryDetailScreen() {
               borderRadius: 10,
               fontSize: 16,
               marginBottom: 12,
+              color: colors.text,
             }}
+            placeholderTextColor={colors.textSecondary}
           />
           <View style={{ flexDirection: "row", gap: 8 }}>
             <Pressable
@@ -259,7 +265,9 @@ export default function CategoryDetailScreen() {
                   borderRadius: 10,
                   fontSize: 16,
                   marginBottom: 16,
+                  color: colors.text,
                 }}
+                placeholderTextColor={colors.textSecondary}
               />
               <IconPicker selected={editIcon} onSelect={setEditIcon} />
               <View style={{ height: 16 }} />

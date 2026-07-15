@@ -62,12 +62,12 @@ export function TodoModal({ visible, todo, onSave, onClose }: TodoModalProps) {
         <View
           style={{
             margin: 20,
-            backgroundColor: "#fff",
+            backgroundColor: colors.background,
             borderRadius: 16,
             padding: 20,
           }}
         >
-          <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 16 }}>
+          <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 16, color: colors.text }}>
             {isEdit ? "Edit Todo" : "New Todo"}
           </Text>
           <TextInput
@@ -77,11 +77,13 @@ export function TodoModal({ visible, todo, onSave, onClose }: TodoModalProps) {
             style={{
               padding: 12,
               borderWidth: 1,
-              borderColor: "#C7C7CC",
+              borderColor: colors.border,
               borderRadius: 10,
               fontSize: 16,
               marginBottom: 12,
+              color: colors.text,
             }}
+            placeholderTextColor={colors.textSecondary}
           />
           <TextInput
             placeholder="Due date (YYYY-MM-DD HH:mm)"
@@ -90,11 +92,13 @@ export function TodoModal({ visible, todo, onSave, onClose }: TodoModalProps) {
             style={{
               padding: 12,
               borderWidth: 1,
-              borderColor: "#C7C7CC",
+              borderColor: colors.border,
               borderRadius: 10,
               fontSize: 16,
               marginBottom: 16,
+              color: colors.text,
             }}
+            placeholderTextColor={colors.textSecondary}
           />
           <View style={{ flexDirection: "row", gap: 8 }}>
             <Pressable
@@ -103,12 +107,12 @@ export function TodoModal({ visible, todo, onSave, onClose }: TodoModalProps) {
                 padding: 12,
                 borderRadius: 10,
                 borderWidth: 1,
-                borderColor: "#C7C7CC",
+                borderColor: colors.border,
                 flex: 1,
                 alignItems: "center",
               }}
             >
-              <Text>Cancel</Text>
+              <Text style={{ color: colors.text }}>Cancel</Text>
             </Pressable>
             <Pressable
               onPress={handleSave}

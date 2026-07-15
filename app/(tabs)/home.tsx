@@ -257,6 +257,7 @@ const [newCatColor, setNewCatColor] = useState("#007AFF");
                   marginBottom: 16,
                   color: colors.text,
                 }}
+                placeholderTextColor={colors.textSecondary}
               />
               <IconPicker selected={newCatIcon} onSelect={setNewCatIcon} />
               <View style={{ height: 16 }} />

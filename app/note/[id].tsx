@@ -122,7 +122,7 @@ export default function NoteDetailScreen() {
           alignItems: "center",
           padding: 16,
           borderBottomWidth: 1,
-          borderBottomColor: "#F2F2F7",
+          borderBottomColor: colors.border,
         }}
       >
         <Pressable onPress={() => router.back()}>
@@ -143,7 +143,7 @@ export default function NoteDetailScreen() {
 
       <ScrollView style={{ flex: 1, padding: 16 }}>
         <View style={{ marginBottom: 8 }}>
-          <Text style={{ fontSize: 12, color: "#8E8E93" }}>
+          <Text style={{ fontSize: 12, color: colors.textSecondary }}>
             Created: {new Date(note.created_at).toLocaleDateString("en-US", {
               year: "numeric",
               month: "short",
@@ -153,7 +153,7 @@ export default function NoteDetailScreen() {
         </View>
 
         {showPreview ? (
-          <View style={{ padding: 12, backgroundColor: "#F2F2F7", borderRadius: 10, minHeight: 200 }}>
+          <View style={{ padding: 12, backgroundColor: colors.card, borderRadius: 10, minHeight: 200 }}>
             <MarkdownPreview body={body} />
           </View>
         ) : (
@@ -164,13 +164,15 @@ export default function NoteDetailScreen() {
             multiline
             style={{
               padding: 12,
-              backgroundColor: "#F2F2F7",
+              backgroundColor: colors.card,
               borderRadius: 10,
               fontSize: 16,
               minHeight: 200,
               textAlignVertical: "top",
               lineHeight: 24,
+              color: colors.text,
             }}
+            placeholderTextColor={colors.textSecondary}
           />
         )}
 
@@ -202,7 +204,7 @@ export default function NoteDetailScreen() {
                 height: 22,
                 borderRadius: 11,
                 borderWidth: 2,
-                borderColor: todo.completed ? "#34C759" : "#C7C7CC",
+                borderColor: todo.completed ? "#34C759" : colors.border,
                 backgroundColor: todo.completed ? "#34C759" : "transparent",
                 marginRight: 12,
                 alignItems: "center",
@@ -218,7 +220,7 @@ export default function NoteDetailScreen() {
               >
                 {todo.title}
               </Text>
-              <Text style={{ fontSize: 12, color: "#8E8E93" }}>
+              <Text style={{ fontSize: 12, color: colors.textSecondary }}>
                 Due: {new Date(todo.due_date).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "short",

@@ -32,11 +32,11 @@ Work the **frontier**: any ticket whose blockers are all done. For a purely line
 
 **Blocked by:** Fix initial routing.
 
-- [ ] Settings modal fits within screen bounds on all device sizes
-- [ ] No screens overflow from side or bottom edges
-- [ ] Placeholder text visible in light mode (sufficient contrast)
-- [ ] `updated_at` not shown anywhere in the UI
-- [ ] `created_at` displayed in friendly format (e.g. "Jan 15, 2026")
+- [x] Settings modal fits within screen bounds on all device sizes
+- [x] No screens overflow from side or bottom edges
+- [x] Placeholder text visible in light mode (sufficient contrast)
+- [x] `updated_at` not shown anywhere in the UI
+- [x] `created_at` displayed in friendly format (e.g. "Jan 15, 2026")
 
 ## Add color picker to category creation
 
