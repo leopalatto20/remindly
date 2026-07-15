@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -13,7 +13,7 @@ import { getNote, updateNoteBody, deleteNote, type Note } from "../../lib/db/not
 import { getTodosByNote, createTodo, toggleTodoCompleted, type Todo } from "../../lib/db/todos";
 import { TodoModal } from "../../components/todos/TodoModal";
 import { MarkdownPreview } from "../../components/notes/MarkdownPreview";
-import { useAutoSave } from "../../lib/hooks/useAutoSave";
+
 import { Toast } from "../../components/ui/Toast";
 import { ThemedScreen } from "../../components/ui/ThemedScreen";
 import { useThemeColors } from "../../lib/theme/colors";
@@ -36,6 +36,16 @@ export default function NoteDetailScreen() {
     }, [id])
   );
 
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        if (note && body !== undefined) {
+          updateNoteBody(note.id, body);
+        }
+      };
+    }, [note?.id, body])
+  );
+
   async function loadNote(noteId: number) {
     const n = await getNote(noteId);
     setNote(n);
@@ -46,14 +56,25 @@ export default function NoteDetailScreen() {
     }
   }
 
-  const save = useCallback(async () => {
-    if (!note) return;
-    await updateNoteBody(note.id, body);
-    setToastMessage("Saved");
-    setToastVisible(true);
-  }, [note?.id, body]);
+  const isInitialMount = useRef(true);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useAutoSave(save, [body], 1000);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(async () => {
+      if (!note) return;
+      await updateNoteBody(note.id, body);
+      setToastMessage("Saved");
+      setToastVisible(true);
+    }, 1000);
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, [body]);
 
   async function handleDelete() {
     if (!note) return;
@@ -83,13 +104,6 @@ export default function NoteDetailScreen() {
     setTodoModalVisible(true);
   }
 
-  async function handleSaveOnBack() {
-    if (note) {
-      await updateNoteBody(note.id, body);
-    }
-    router.back();
-  }
-
   if (!note) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -110,7 +124,7 @@ export default function NoteDetailScreen() {
           borderBottomColor: "#F2F2F7",
         }}
       >
-        <Pressable onPress={handleSaveOnBack}>
+        <Pressable onPress={() => router.back()}>
           <Text style={{ color: "#007AFF", fontSize: 16 }}>Back</Text>
         </Pressable>
         <Pressable onPress={() => setShowPreview(!showPreview)} style={{ marginRight: 12 }}>

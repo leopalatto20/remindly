@@ -14,7 +14,6 @@ import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import {
   getCategory,
   updateCategory,
-  createCategory,
   type Category,
 } from "../../lib/db/categories";
 import { getNotesByCategory, createNote, type Note } from "../../lib/db/notes";
@@ -26,25 +25,18 @@ import { useThemeColors } from "../../lib/theme/colors";
 export default function CategoryDetailScreen() {
   const colors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const isNew = id === "new";
   const [category, setCategory] = useState<Category | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [showCreate, setShowCreate] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [showEdit, setShowEdit] = useState(false);
   const [editName, setEditName] = useState("");
-  const [showNew, setShowNew] = useState(false);
-  const [newCatName, setNewCatName] = useState("");
-  const [newCatIcon, setNewCatIcon] = useState("📚");
-  const [newCatColor, setNewCatColor] = useState("#007AFF");
   const [editIcon, setEditIcon] = useState("📚");
   const [editColor, setEditColor] = useState("#007AFF");
 
   useFocusEffect(
     useCallback(() => {
-      if (isNew) {
-        setShowNew(true);
-      } else if (id) {
+      if (id) {
         loadData(Number(id));
       }
     }, [id])
@@ -65,74 +57,6 @@ export default function CategoryDetailScreen() {
     setNewTitle("");
     setShowCreate(false);
     router.push(`/note/${noteId}`);
-  }
-
-  if (isNew) {
-    return (
-      <ThemedScreen>
-        <View style={{ padding: 16, paddingTop: 60 }}>
-          <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 16 }}>
-            New Category
-          </Text>
-          <TextInput
-            placeholder="Category name"
-            value={newCatName}
-            onChangeText={setNewCatName}
-            style={{
-              padding: 12,
-              borderWidth: 1,
-              borderColor: colors.border,
-              borderRadius: 10,
-              fontSize: 16,
-              marginBottom: 16,
-            }}
-          />
-          <IconPicker selected={newCatIcon} onSelect={setNewCatIcon} />
-          <View style={{ height: 16 }} />
-          <ColorPicker selected={newCatColor} onSelect={setNewCatColor} />
-          <View style={{ height: 16 }} />
-          <View style={{ flexDirection: "row", gap: 8 }}>
-            <Pressable
-              onPress={() => {
-                setNewCatName("");
-                router.back();
-              }}
-              style={{
-                padding: 12,
-                borderRadius: 10,
-                borderWidth: 1,
-                borderColor: colors.border,
-                flex: 1,
-                alignItems: "center",
-              }}
-            >
-              <Text>Cancel</Text>
-            </Pressable>
-            <Pressable
-              onPress={async () => {
-                if (!newCatName.trim()) return;
-                const catId = await createCategory(
-                  newCatName.trim(),
-                  newCatIcon,
-                  newCatColor
-                );
-                setNewCatName("");
-                router.replace(`/category/${catId}`);
-              }}
-              style={{
-                padding: 12,
-                borderRadius: 10,
-                backgroundColor: "#007AFF",
-                flex: 1,
-                alignItems: "center",
-              }}
-            >
-              <Text style={{ color: "#fff", fontWeight: "600" }}>Create</Text>
-            </Pressable>
-          </View>
-        </View>
-      </ThemedScreen>
-    );
   }
 
   if (!category) {

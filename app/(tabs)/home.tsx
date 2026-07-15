@@ -2,23 +2,32 @@ import { useCallback, useState } from "react";
 import {
   Alert,
   FlatList,
+  Modal,
   Pressable,
+  ScrollView,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { router, useFocusEffect } from "expo-router";
-import { getAllCategories, deleteCategory } from "../../lib/db/categories";
+import { getAllCategories, deleteCategory, createCategory } from "../../lib/db/categories";
 import type { Category } from "../../lib/db/categories";
 import { getUrgentTodos } from "../../lib/db/todos";
 import type { Todo } from "../../lib/db/todos";
 import { ThemedScreen } from "../../components/ui/ThemedScreen";
 import { useThemeColors } from "../../lib/theme/colors";
+import { IconPicker } from "../../components/categories/IconPicker";
+import { ColorPicker } from "../../components/categories/ColorPicker";
 
 export default function HomeScreen() {
   const colors = useThemeColors();
   const [categories, setCategories] = useState<Category[]>([]);
   const [urgentTodos, setUrgentTodos] = useState<Todo[]>([]);
 const [showAllUrgent, setShowAllUrgent] = useState(false);
+const [showCreateModal, setShowCreateModal] = useState(false);
+const [newCatName, setNewCatName] = useState("");
+const [newCatIcon, setNewCatIcon] = useState("📚");
+const [newCatColor, setNewCatColor] = useState("#007AFF");
 
   useFocusEffect(
     useCallback(() => {
@@ -187,7 +196,7 @@ const [showAllUrgent, setShowAllUrgent] = useState(false);
         }
         ListFooterComponent={
           <Pressable
-            onPress={() => router.push("/category/new")}
+            onPress={() => setShowCreateModal(true)}
             style={{
               flexDirection: "row",
               alignItems: "center",
@@ -214,6 +223,85 @@ const [showAllUrgent, setShowAllUrgent] = useState(false);
           </View>
         }
       />
+    <Modal visible={showCreateModal} transparent animationType="slide">
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            backgroundColor: "rgba(0,0,0,0.4)",
+          }}
+        >
+          <View
+            style={{
+              margin: 20,
+              backgroundColor: colors.background,
+              borderRadius: 16,
+              padding: 20,
+              maxHeight: "80%",
+            }}
+          >
+            <ScrollView>
+              <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 16, color: colors.text }}>
+                New Category
+              </Text>
+              <TextInput
+                placeholder="Category name"
+                value={newCatName}
+                onChangeText={setNewCatName}
+                style={{
+                  padding: 12,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  borderRadius: 10,
+                  fontSize: 16,
+                  marginBottom: 16,
+                  color: colors.text,
+                }}
+              />
+              <IconPicker selected={newCatIcon} onSelect={setNewCatIcon} />
+              <View style={{ height: 16 }} />
+              <ColorPicker selected={newCatColor} onSelect={setNewCatColor} />
+              <View style={{ height: 16 }} />
+              <View style={{ flexDirection: "row", gap: 8 }}>
+                <Pressable
+                  onPress={() => {
+                    setShowCreateModal(false);
+                    setNewCatName("");
+                  }}
+                  style={{
+                    padding: 12,
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    flex: 1,
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ color: colors.text }}>Cancel</Text>
+                </Pressable>
+                <Pressable
+                  onPress={async () => {
+                    if (!newCatName.trim()) return;
+                    const catId = await createCategory(newCatName.trim(), newCatIcon, newCatColor);
+                    setShowCreateModal(false);
+                    setNewCatName("");
+                    loadData();
+                  }}
+                  style={{
+                    padding: 12,
+                    borderRadius: 10,
+                    backgroundColor: colors.primary,
+                    flex: 1,
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ color: "#FFFFFF", fontWeight: "600" }}>Create</Text>
+                </Pressable>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </ThemedScreen>
   );
 }

@@ -29,30 +29,40 @@ export default function SearchScreen() {
     }
   }
 
-  const grouped = results.reduce<
-    Record<string, { notes: SearchResult[]; todos: SearchResult[] }>
-  >((acc, r) => {
-    const key = r.category_name;
-    if (!acc[key]) acc[key] = { notes: [], todos: [] };
-    if (r.type === "note") acc[key].notes.push(r);
-    else acc[key].todos.push(r);
-    return acc;
-  }, {});
-
-  const sections = Object.entries(grouped).flatMap(
-    ([catName, { notes, todos }]) => {
-      const items: { type: "header" | "result"; data: SearchResult | string }[] = [
-        { type: "header" as const, data: catName },
-      ];
-      if (notes.length > 0)
-        items.push({ type: "header" as const, data: "Notes" });
-      notes.forEach((n) => items.push({ type: "result" as const, data: n }));
-      if (todos.length > 0)
-        items.push({ type: "header" as const, data: "Todos" });
-      todos.forEach((t) => items.push({ type: "result" as const, data: t }));
-      return items;
-    }
+  const grouped = results.reduce<{
+    notes: Record<string, SearchResult[]>;
+    todos: Record<string, SearchResult[]>;
+  }>(
+    (acc, r) => {
+      const catKey = r.category_name;
+      if (r.type === "note") {
+        if (!acc.notes[catKey]) acc.notes[catKey] = [];
+        acc.notes[catKey].push(r);
+      } else {
+        if (!acc.todos[catKey]) acc.todos[catKey] = [];
+        acc.todos[catKey].push(r);
+      }
+      return acc;
+    },
+    { notes: {}, todos: {} }
   );
+
+  const sections: { type: "header" | "result"; data: SearchResult | string }[] = [];
+
+  if (Object.keys(grouped.notes).length > 0) {
+    sections.push({ type: "header", data: "Notes" });
+    Object.entries(grouped.notes).forEach(([catName, items]) => {
+      sections.push({ type: "header", data: catName });
+      items.forEach((n) => sections.push({ type: "result", data: n }));
+    });
+  }
+  if (Object.keys(grouped.todos).length > 0) {
+    sections.push({ type: "header", data: "Todos" });
+    Object.entries(grouped.todos).forEach(([catName, items]) => {
+      sections.push({ type: "header", data: catName });
+      items.forEach((t) => sections.push({ type: "result", data: t }));
+    });
+  }
 
   return (
     <ThemedScreen>
