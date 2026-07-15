@@ -1,11 +1,13 @@
 import { useState } from "react";
 import {
   Modal,
+  Platform,
   Pressable,
   Text,
   TextInput,
   View,
 } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import type { Todo } from "../../lib/db/todos";
 import { useThemeColors } from "../../lib/theme/colors";
 
@@ -19,35 +21,56 @@ interface TodoModalProps {
 export function TodoModal({ visible, todo, onSave, onClose }: TodoModalProps) {
   const colors = useThemeColors();
   const [title, setTitle] = useState(todo?.title ?? "");
-  const [dateString, setDateString] = useState(
-    todo ? todo.due_date.replace("T", " ").substring(0, 16) : ""
+
+  const defaultDate = new Date(Date.now() + 86400000);
+  defaultDate.setHours(12, 0, 0, 0);
+  const [selectedDate, setSelectedDate] = useState<Date>(
+    todo ? new Date(todo.due_date) : defaultDate
   );
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const isEdit = todo !== null;
 
+  function resetForm() {
+    setTitle("");
+    setSelectedDate(defaultDate);
+    setShowDatePicker(false);
+    setShowTimePicker(false);
+  }
+
   function handleSave() {
     if (!title.trim()) return;
-    let dueDate = dateString;
-    if (!dueDate) {
-      const d = new Date(Date.now() + 86400000);
-      dueDate = d.toISOString();
-    } else {
-      try {
-        dueDate = new Date(dueDate).toISOString();
-      } catch {
-        const d = new Date(Date.now() + 86400000);
-        dueDate = d.toISOString();
-      }
-    }
+    const dueDate = selectedDate.toISOString();
     onSave(title.trim(), dueDate);
-    setTitle("");
-    setDateString("");
+    resetForm();
   }
 
   function handleClose() {
-    setTitle("");
-    setDateString("");
+    resetForm();
     onClose();
+  }
+
+  function onDateChange(_event: unknown, date?: Date) {
+    if (Platform.OS === "android") {
+      setShowDatePicker(false);
+    }
+    if (date) {
+      setSelectedDate(date);
+    }
+    if (Platform.OS === "android" && date) {
+      setShowTimePicker(true);
+    }
+  }
+
+  function onTimeChange(_event: unknown, date?: Date) {
+    if (Platform.OS === "android") {
+      setShowTimePicker(false);
+    }
+    if (date) {
+      setSelectedDate(date);
+    }
   }
 
   return (
@@ -85,21 +108,72 @@ export function TodoModal({ visible, todo, onSave, onClose }: TodoModalProps) {
             }}
             placeholderTextColor={colors.textSecondary}
           />
-          <TextInput
-            placeholder="Due date (YYYY-MM-DD HH:mm)"
-            value={dateString}
-            onChangeText={setDateString}
+
+          <Text style={{ fontSize: 14, color: colors.textSecondary, marginBottom: 4 }}>
+            Due date
+          </Text>
+
+          <Pressable
+            onPress={() => {
+              if (Platform.OS === "android") {
+                setShowDatePicker(true);
+                setShowTimePicker(false);
+              }
+            }}
             style={{
               padding: 12,
               borderWidth: 1,
               borderColor: colors.border,
               borderRadius: 10,
-              fontSize: 16,
               marginBottom: 16,
-              color: colors.text,
+              backgroundColor: colors.card,
             }}
-            placeholderTextColor={colors.textSecondary}
-          />
+          >
+            <Text style={{ color: colors.text, fontSize: 16 }}>
+              {selectedDate.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}{" "}
+              {selectedDate.toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </Text>
+          </Pressable>
+
+          {Platform.OS === "ios" && (
+            <View style={{ marginBottom: 16, gap: 8 }}>
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                onChange={onDateChange}
+              />
+              <DateTimePicker
+                value={selectedDate}
+                mode="time"
+                onChange={onTimeChange}
+              />
+            </View>
+          )}
+
+          {Platform.OS === "android" && showDatePicker && (
+            <DateTimePicker
+              value={selectedDate}
+              mode="date"
+              onChange={onDateChange}
+            />
+          )}
+
+          {Platform.OS === "android" && showTimePicker && (
+            <DateTimePicker
+              value={selectedDate}
+              mode="time"
+              is24Hour
+              onChange={onTimeChange}
+            />
+          )}
+
           <View style={{ flexDirection: "row", gap: 8 }}>
             <Pressable
               onPress={handleClose}

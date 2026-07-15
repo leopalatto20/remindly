@@ -82,7 +82,7 @@ Work the **frontier**: any ticket whose blockers are all done. For a purely line
 
 **Blocked by:** Fix initial routing.
 
-- [ ] Todo modal shows a native date picker
-- [ ] Todo modal shows a native time picker (or combined date+time)
-- [ ] Selected date/time displays in a friendly format in the todo list
-- [ ] No manual timestamp text input required
+- [x] Todo modal shows a native date picker
+- [x] Todo modal shows a native time picker (or combined date+time)
+- [x] Selected date/time displays in a friendly format in the todo list
+- [x] No manual timestamp text input required
