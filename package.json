@@ -3,28 +3,31 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
-    "expo": "~57.0.4",
-    "expo-router": "~57.0.0",
-    "expo-sqlite": "~57.0.0",
-    "expo-status-bar": "~57.0.0",
-    "expo-linking": "~8.0.0",
-    "expo-constants": "~18.0.0",
-    "react": "19.2.3",
-    "react-native": "0.86.0",
-    "react-native-screens": "~4.10.0",
-    "react-native-safe-area-context": "5.4.0",
-    "react-native-gesture-handler": "~2.27.0",
-    "react-native-reanimated": "~3.18.0",
-    "react-native-reanimated-color-picker": "^0.0.11",
+    "@babel/core": "7.26.0",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "expo": "54.0.36",
+    "expo-constants": "~18.0.13",
+    "expo-linking": "~8.0.12",
+    "expo-router": "~6.0.24",
+    "expo-sqlite": "~16.0.10",
+    "expo-status-bar": "~3.0.9",
     "lucide-react-native": "^1.24.0",
     "nativewind": "~4.2.0",
-    "tailwindcss": "^3.4.17",
-    "@react-native-async-storage/async-storage": "2.1.2",
-    "react-native-markdown-display": "^7.0.2"
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-gesture-handler": "~2.28.0",
+    "react-native-markdown-display": "^7.0.2",
+    "react-native-reanimated": "~4.1.1",
+    "react-native-reanimated-color-picker": "^0.0.11",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0",
+    "react-native-svg": "15.12.1",
+    "react-native-worklets": "0.5.1",
+    "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
-    "@types/react": "~19.2.2",
-    "typescript": "~6.0.3"
+    "@types/react": "~19.1.0",
+    "typescript": "5.9.2"
   },
   "scripts": {
     "start": "expo start",
@@ -33,5 +36,8 @@
     "web": "expo start --web",
     "lint": "npx tsc --noEmit"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "@babel/core": "7.26.0"
+  }
 }

@@ -27,10 +27,9 @@ A simple note-taking multiplatform app designed as a personal diary/notebook. Th
 ### Notes
 - Title (required)
 - Body (markdown)
-- Creation date (auto-set)
-- Updated at timestamp (for data integrity)
+- Creation date (auto-set, displayed in friendly format e.g. "Jan 15, 2026")
+- Updated at timestamp (backend only, not displayed in UI)
 - Category (required foreign key)
-- Auto-save: 1 second debounce or on navigation back
 - Subtle toast feedback on save
 
 ### Todos
@@ -95,6 +94,17 @@ A simple note-taking multiplatform app designed as a personal diary/notebook. Th
 ### Note Creation
 - User enters title → note created instantly → navigated to note detail to start writing
 
+### Note Editing
+- Two modes: **view** (rendered markdown, read-only) and **edit** (raw markdown, writable)
+- Pencil icon to enter edit mode, check icon to save and exit edit mode
+- Save happens on check tap (and on navigation back as safety net), not auto-save
+- Pattern: Apple Notes style
+
+### Deletion
+- Swipe-to-delete gesture on list items (categories, notes)
+- Trash icon in detail view header with confirmation dialog
+- No long-press gestures
+
 ### Color Scheme
 - Light and dark mode from start
 - System preference detected by default
@@ -106,6 +116,8 @@ A simple note-taking multiplatform app designed as a personal diary/notebook. Th
 
 ### Colors
 - Full color picker for category colors (react-native-reanimated-color-picker)
+- Primary accent color: `#0a4511` — used for interactive elements (buttons, toggles, active states) to give the app personality
+- Destructive/info states use their own standard colors
 
 ## Search Implementation
 - Full-text search using SQLite FTS
