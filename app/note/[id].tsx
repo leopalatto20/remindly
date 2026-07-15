@@ -102,6 +102,8 @@ export default function NoteDetailScreen() {
     );
   }
 
+  const completedCount = todos.filter((t) => t.completed).length;
+
   return (
     <ThemedScreen>
       <View
@@ -109,17 +111,13 @@ export default function NoteDetailScreen() {
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: 16,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
+          paddingHorizontal: 16,
+          paddingVertical: 8,
         }}
       >
         <Pressable onPress={() => router.back()}>
           <Text style={{ color: colors.primary, fontSize: 16 }}>Back</Text>
         </Pressable>
-        <Text style={{ fontSize: 18, fontWeight: "bold", flex: 1, textAlign: "center" }}>
-          {note.title}
-        </Text>
         <View style={{ flexDirection: "row", gap: 12 }}>
           {isEditing ? (
             <Pressable onPress={handleSave}>
@@ -136,10 +134,21 @@ export default function NoteDetailScreen() {
         </View>
       </View>
 
-      <ScrollView style={{ flex: 1, padding: 16 }}>
-        <View style={{ marginBottom: 8 }}>
-          <Text style={{ fontSize: 12, color: colors.textSecondary }}>
-            Created: {new Date(note.created_at).toLocaleDateString("en-US", {
+      <ScrollView style={{ flex: 1, paddingHorizontal: 16 }}>
+        <View style={{ marginTop: 12, marginBottom: 16 }}>
+          <Text
+            style={{
+              fontSize: 28,
+              fontWeight: "700",
+              letterSpacing: -0.3,
+              lineHeight: 34,
+              color: colors.text,
+            }}
+          >
+            {note.title}
+          </Text>
+          <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 2 }}>
+            {new Date(note.created_at).toLocaleDateString("en-US", {
               year: "numeric",
               month: "short",
               day: "numeric",
@@ -157,30 +166,49 @@ export default function NoteDetailScreen() {
               padding: 12,
               backgroundColor: colors.card,
               borderRadius: 10,
-              fontSize: 16,
+              fontSize: 17,
               minHeight: 200,
               textAlignVertical: "top",
-              lineHeight: 24,
+              lineHeight: 27,
               color: colors.text,
             }}
             placeholderTextColor={colors.textSecondary}
           />
         ) : (
-          <View style={{ padding: 12, backgroundColor: colors.card, borderRadius: 10, minHeight: 200 }}>
+          <View style={{ minHeight: 200 }}>
             <MarkdownPreview body={body} />
           </View>
         )}
 
-        <Text
+        <View
           style={{
-            fontSize: 18,
-            fontWeight: "600",
-            marginTop: 24,
-            marginBottom: 12,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            marginTop: 36,
+            paddingTop: 20,
+            borderTopWidth: 1,
+            borderTopColor: colors.border,
           }}
         >
-          Todos
-        </Text>
+          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text }}>
+            Todos
+          </Text>
+          {todos.length > 0 && (
+            <View
+              style={{
+                backgroundColor: colors.card,
+                paddingHorizontal: 8,
+                paddingVertical: 2,
+                borderRadius: 10,
+              }}
+            >
+              <Text style={{ fontSize: 11, color: colors.textSecondary }}>
+                {completedCount}/{todos.length}
+              </Text>
+            </View>
+          )}
+        </View>
 
         {todos.map((todo) => (
           <View
@@ -188,20 +216,21 @@ export default function NoteDetailScreen() {
             style={{
               flexDirection: "row",
               alignItems: "center",
-              padding: 12,
+              paddingVertical: 6,
               opacity: todo.completed ? 0.5 : 1,
             }}
           >
             <Pressable
               onPress={() => handleToggleTodo(todo.id)}
+              hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
               style={{
-                width: 22,
-                height: 22,
-                borderRadius: 11,
+                width: 18,
+                height: 18,
+                borderRadius: 9,
                 borderWidth: 2,
-                borderColor: todo.completed ? "#34C759" : colors.border,
-                backgroundColor: todo.completed ? "#34C759" : "transparent",
-                marginRight: 12,
+                borderColor: todo.completed ? colors.success : colors.border,
+                backgroundColor: todo.completed ? colors.success : "transparent",
+                marginRight: 10,
                 alignItems: "center",
                 justifyContent: "center",
               }}
@@ -209,14 +238,15 @@ export default function NoteDetailScreen() {
             <Pressable style={{ flex: 1 }} onPress={() => handleTapTodo(todo)}>
               <Text
                 style={{
-                  fontSize: 16,
+                  fontSize: 14,
                   textDecorationLine: todo.completed ? "line-through" : "none",
+                  color: colors.text,
                 }}
               >
                 {todo.title}
               </Text>
-              <Text style={{ fontSize: 12, color: colors.textSecondary }}>
-                Due: {new Date(todo.due_date).toLocaleDateString("en-US", {
+              <Text style={{ fontSize: 11, color: colors.textSecondary, marginTop: 1 }}>
+                {new Date(todo.due_date).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "short",
                   day: "numeric",
@@ -227,25 +257,16 @@ export default function NoteDetailScreen() {
         ))}
 
         <Pressable
-            onPress={() => {
-              setEditingTodo(null);
-              setTodoModalVisible(true);
-            }}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: 12,
-              marginTop: 12,
-              marginBottom: 40,
-              borderWidth: 1,
-              borderColor: colors.primary,
-              borderStyle: "dashed",
-              borderRadius: 10,
-            }}
-          >
-            <Text style={{ color: colors.primary, fontWeight: "600" }}>+ New Todo</Text>
-          </Pressable>
+          onPress={() => {
+            setEditingTodo(null);
+            setTodoModalVisible(true);
+          }}
+          style={{ marginTop: 8, marginBottom: 40 }}
+        >
+          <Text style={{ color: colors.primary, fontWeight: "500", fontSize: 14 }}>
+            + Add
+          </Text>
+        </Pressable>
       </ScrollView>
 
       <TodoModal
