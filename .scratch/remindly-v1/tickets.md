@@ -44,9 +44,9 @@ Work the **frontier**: any ticket whose blockers are all done. For a purely line
 
 **Blocked by:** Replace emojis with Lucide icons + apply accent color.
 
-- [ ] Category modal includes a full color picker component
-- [ ] Selected color previews in the modal before saving
-- [ ] Color persists to database and displays correctly in lists and detail views
+- [x] Category modal includes a full color picker component
+- [x] Selected color previews in the modal before saving
+- [x] Color persists to database and displays correctly in lists and detail views
 
 ## Implement swipe-to-delete on lists + trash icon in detail views
 
