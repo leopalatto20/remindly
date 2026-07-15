@@ -43,7 +43,7 @@ export default function SettingsScreen() {
             flexDirection: "row",
             alignItems: "center",
             padding: 14,
-            backgroundColor: mode === opt.value ? "#007AFF20" : "#F2F2F7",
+            backgroundColor: mode === opt.value ? colors.primary + "20" : "#F2F2F7",
             borderRadius: 10,
             marginBottom: 8,
           }}
@@ -54,7 +54,7 @@ export default function SettingsScreen() {
               height: 20,
               borderRadius: 10,
               borderWidth: 2,
-              borderColor: mode === opt.value ? "#007AFF" : "#C7C7CC",
+              borderColor: mode === opt.value ? colors.primary : "#C7C7CC",
               marginRight: 12,
               alignItems: "center",
               justifyContent: "center",
@@ -66,7 +66,7 @@ export default function SettingsScreen() {
                   width: 10,
                   height: 10,
                   borderRadius: 5,
-                  backgroundColor: "#007AFF",
+                  backgroundColor: colors.primary,
                 }}
               />
             )}

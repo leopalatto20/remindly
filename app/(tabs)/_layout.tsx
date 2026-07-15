@@ -1,11 +1,13 @@
 import { Tabs } from "expo-router";
-import { Text } from "react-native";
+import { Home, Search } from "lucide-react-native";
+import { useThemeColors } from "../../lib/theme/colors";
 
 export default function TabLayout() {
+  const colors = useThemeColors();
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#007AFF",
+        tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: "#8E8E93",
       }}
     >
@@ -15,7 +17,7 @@ export default function TabLayout() {
           title: "Home",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ fontSize: size, color: color as string }}>🏠</Text>
+            <Home size={size} color={color} />
           ),
         }}
       />
@@ -25,7 +27,7 @@ export default function TabLayout() {
           title: "Search",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ fontSize: size, color: color as string }}>🔍</Text>
+            <Search size={size} color={color} />
           ),
         }}
       />

@@ -7,6 +7,7 @@ import {
   View,
 } from "react-native";
 import type { Todo } from "../../lib/db/todos";
+import { useThemeColors } from "../../lib/theme/colors";
 
 interface TodoModalProps {
   visible: boolean;
@@ -16,6 +17,7 @@ interface TodoModalProps {
 }
 
 export function TodoModal({ visible, todo, onSave, onClose }: TodoModalProps) {
+  const colors = useThemeColors();
   const [title, setTitle] = useState(todo?.title ?? "");
   const [dateString, setDateString] = useState(
     todo ? todo.due_date.replace("T", " ").substring(0, 16) : ""
@@ -113,7 +115,7 @@ export function TodoModal({ visible, todo, onSave, onClose }: TodoModalProps) {
               style={{
                 padding: 12,
                 borderRadius: 10,
-                backgroundColor: "#007AFF",
+                backgroundColor: colors.primary,
                 flex: 1,
                 alignItems: "center",
               }}

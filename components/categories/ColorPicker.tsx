@@ -1,4 +1,5 @@
 import { Pressable, Text, View } from "react-native";
+import { useThemeColors } from "../../lib/theme/colors";
 
 const COLORS = [
   "#FF3B30", "#FF9500", "#FFCC00", "#34C759", "#00C7BE",
@@ -13,11 +14,9 @@ interface ColorPickerProps {
 }
 
 export function ColorPicker({ selected, onSelect }: ColorPickerProps) {
+  const colors = useThemeColors();
   return (
     <View>
-      <Text style={{ fontSize: 14, fontWeight: "600", marginBottom: 8, color: "#8E8E93" }}>
-        Color
-      </Text>
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
         {COLORS.map((color) => (
           <Pressable
@@ -31,7 +30,7 @@ export function ColorPicker({ selected, onSelect }: ColorPickerProps) {
               alignItems: "center",
               justifyContent: "center",
               borderWidth: selected === color ? 3 : 1,
-              borderColor: selected === color ? "#007AFF" : "#E5E5EA",
+              borderColor: selected === color ? colors.primary : "#E5E5EA",
             }}
           >
             {selected === color && (

@@ -19,6 +19,7 @@ import {
 import { getNotesByCategory, createNote, type Note } from "../../lib/db/notes";
 import { IconPicker } from "../../components/categories/IconPicker";
 import { ColorPicker } from "../../components/categories/ColorPicker";
+import { DynamicIcon } from "../../lib/icons/DynamicIcon";
 import { ThemedScreen } from "../../components/ui/ThemedScreen";
 import { useThemeColors } from "../../lib/theme/colors";
 
@@ -31,7 +32,7 @@ export default function CategoryDetailScreen() {
   const [newTitle, setNewTitle] = useState("");
   const [showEdit, setShowEdit] = useState(false);
   const [editName, setEditName] = useState("");
-  const [editIcon, setEditIcon] = useState("📚");
+  const [editIcon, setEditIcon] = useState("Book");
   const [editColor, setEditColor] = useState("#007AFF");
 
   useFocusEffect(
@@ -88,9 +89,7 @@ export default function CategoryDetailScreen() {
             marginRight: 12,
           }}
         >
-          <Text style={{ fontSize: 24, color: category.color }}>
-            {category.icon}
-          </Text>
+          <DynamicIcon name={category.icon} size={24} color={category.color} />
         </View>
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 22, fontWeight: "bold" }}>
@@ -195,7 +194,7 @@ export default function CategoryDetailScreen() {
               style={{
                 padding: 12,
                 borderRadius: 10,
-                backgroundColor: "#007AFF",
+                backgroundColor: colors.primary,
                 flex: 1,
                 alignItems: "center",
               }}
@@ -295,7 +294,7 @@ export default function CategoryDetailScreen() {
                   style={{
                     padding: 12,
                     borderRadius: 10,
-                    backgroundColor: "#007AFF",
+                    backgroundColor: colors.primary,
                     flex: 1,
                     alignItems: "center",
                   }}

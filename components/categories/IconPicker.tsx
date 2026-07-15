@@ -1,30 +1,31 @@
-import { FlatList, Pressable, Text, View } from "react-native";
+import { FlatList, Pressable, View } from "react-native";
+import { DynamicIcon } from "../../lib/icons/DynamicIcon";
+import { useThemeColors } from "../../lib/theme/colors";
 
 const ICONS = [
-  { emoji: "📚", name: "Books" },
-  { emoji: "✏️", name: "Writing" },
-  { emoji: "📝", name: "Notes" },
-  { emoji: "📖", name: "Journal" },
-  { emoji: "🎨", name: "Art" },
-  { emoji: "🎵", name: "Music" },
-  { emoji: "🧮", name: "Math" },
-  { emoji: "🔬", name: "Science" },
-  { emoji: "🌍", name: "Geography" },
-  { emoji: "📜", name: "History" },
-  { emoji: "💻", name: "Tech" },
-  { emoji: "🗣️", name: "Languages" },
-  { emoji: "🏋️", name: "Fitness" },
-  { emoji: "🍳", name: "Cooking" },
-  { emoji: "✈️", name: "Travel" },
-  { emoji: "💡", name: "Ideas" },
-  { emoji: "📋", name: "Lists" },
-  { emoji: "🎯", name: "Goals" },
-  { emoji: "❤️", name: "Health" },
-  { emoji: "💰", name: "Finance" },
-  { emoji: "🏠", name: "Home" },
-  { emoji: "🎮", name: "Gaming" },
-  { emoji: "📷", name: "Photo" },
-  { emoji: "🎬", name: "Film" },
+  { name: "Book", label: "Books" },
+  { name: "Pen", label: "Writing" },
+  { name: "StickyNote", label: "Notes" },
+  { name: "BookOpen", label: "Journal" },
+  { name: "Palette", label: "Art" },
+  { name: "Music", label: "Music" },
+  { name: "Sigma", label: "Math" },
+  { name: "FlaskConical", label: "Science" },
+  { name: "Globe", label: "Geography" },
+  { name: "Scroll", label: "History" },
+  { name: "Monitor", label: "Tech" },
+  { name: "Languages", label: "Languages" },
+  { name: "Dumbbell", label: "Fitness" },
+  { name: "Utensils", label: "Cooking" },
+  { name: "Plane", label: "Travel" },
+  { name: "Lightbulb", label: "Ideas" },
+  { name: "List", label: "Lists" },
+  { name: "Target", label: "Goals" },
+  { name: "Heart", label: "Health" },
+  { name: "Wallet", label: "Finance" },
+  { name: "Gamepad2", label: "Gaming" },
+  { name: "Camera", label: "Photo" },
+  { name: "Clapperboard", label: "Film" },
 ];
 
 interface IconPickerProps {
@@ -33,11 +34,9 @@ interface IconPickerProps {
 }
 
 export function IconPicker({ selected, onSelect }: IconPickerProps) {
+  const colors = useThemeColors();
   return (
     <View>
-      <Text style={{ fontSize: 14, fontWeight: "600", marginBottom: 8, color: "#8E8E93" }}>
-        Icon
-      </Text>
       <FlatList
         data={ICONS}
         keyExtractor={(item) => item.name}
@@ -46,19 +45,23 @@ export function IconPicker({ selected, onSelect }: IconPickerProps) {
         columnWrapperStyle={{ gap: 8, marginBottom: 8 }}
         renderItem={({ item }) => (
           <Pressable
-            onPress={() => onSelect(item.emoji)}
+            onPress={() => onSelect(item.name)}
             style={{
               width: 48,
               height: 48,
               borderRadius: 12,
-              backgroundColor: selected === item.emoji ? "#007AFF20" : "#F2F2F7",
+              backgroundColor: selected === item.name ? colors.primary + "20" : "#F2F2F7",
               alignItems: "center",
               justifyContent: "center",
-              borderWidth: selected === item.emoji ? 2 : 0,
-              borderColor: "#007AFF",
+              borderWidth: selected === item.name ? 2 : 0,
+              borderColor: colors.primary,
             }}
           >
-            <Text style={{ fontSize: 24 }}>{item.emoji}</Text>
+            <DynamicIcon
+              name={item.name}
+              size={22}
+              color={selected === item.name ? colors.primary : "#555"}
+            />
           </Pressable>
         )}
       />

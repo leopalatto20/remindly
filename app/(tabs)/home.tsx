@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { router, useFocusEffect } from "expo-router";
+import { Settings } from "lucide-react-native";
 import { getAllCategories, deleteCategory, createCategory } from "../../lib/db/categories";
 import type { Category } from "../../lib/db/categories";
 import { getUrgentTodos } from "../../lib/db/todos";
@@ -18,6 +19,7 @@ import { ThemedScreen } from "../../components/ui/ThemedScreen";
 import { useThemeColors } from "../../lib/theme/colors";
 import { IconPicker } from "../../components/categories/IconPicker";
 import { ColorPicker } from "../../components/categories/ColorPicker";
+import { DynamicIcon } from "../../lib/icons/DynamicIcon";
 
 export default function HomeScreen() {
   const colors = useThemeColors();
@@ -26,7 +28,7 @@ export default function HomeScreen() {
 const [showAllUrgent, setShowAllUrgent] = useState(false);
 const [showCreateModal, setShowCreateModal] = useState(false);
 const [newCatName, setNewCatName] = useState("");
-const [newCatIcon, setNewCatIcon] = useState("📚");
+const [newCatIcon, setNewCatIcon] = useState("Book");
 const [newCatColor, setNewCatColor] = useState("#007AFF");
 
   useFocusEffect(
@@ -73,7 +75,7 @@ const [newCatColor, setNewCatColor] = useState("#007AFF");
       >
         <Text style={{ fontSize: 28, fontWeight: "bold" }}>Remindly</Text>
         <Pressable onPress={() => router.push("/settings")}>
-          <Text style={{ fontSize: 24, color: colors.primary }}>⚙</Text>
+          <Settings size={24} color={colors.primary} />
         </Pressable>
       </View>
 
@@ -105,9 +107,7 @@ const [newCatColor, setNewCatColor] = useState("#007AFF");
                 marginRight: 12,
               }}
             >
-              <Text style={{ fontSize: 20, color: item.color }}>
-                {item.icon}
-              </Text>
+              <DynamicIcon name={item.icon} size={20} color={item.color} />
             </View>
             <Text style={{ fontSize: 16, fontWeight: "600" }}>{item.name}</Text>
           </Pressable>

@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { Trash2 } from "lucide-react-native";
 
 import { getNote, updateNoteBody, deleteNote, type Note } from "../../lib/db/notes";
 import { getTodosByNote, createTodo, toggleTodoCompleted, type Todo } from "../../lib/db/todos";
@@ -125,10 +126,10 @@ export default function NoteDetailScreen() {
         }}
       >
         <Pressable onPress={() => router.back()}>
-          <Text style={{ color: "#007AFF", fontSize: 16 }}>Back</Text>
+          <Text style={{ color: colors.primary, fontSize: 16 }}>Back</Text>
         </Pressable>
         <Pressable onPress={() => setShowPreview(!showPreview)} style={{ marginRight: 12 }}>
-          <Text style={{ color: "#007AFF", fontSize: 14 }}>
+          <Text style={{ color: colors.primary, fontSize: 14 }}>
             {showPreview ? "Edit" : "Preview"}
           </Text>
         </Pressable>
@@ -136,17 +137,18 @@ export default function NoteDetailScreen() {
           {note.title}
         </Text>
         <Pressable onPress={handleDelete}>
-          <Text style={{ fontSize: 20, color: "#FF3B30" }}>🗑</Text>
+          <Trash2 size={20} color={colors.danger} />
         </Pressable>
       </View>
 
       <ScrollView style={{ flex: 1, padding: 16 }}>
         <View style={{ marginBottom: 8 }}>
           <Text style={{ fontSize: 12, color: "#8E8E93" }}>
-            Created: {new Date(note.created_at).toLocaleString()}
-          </Text>
-          <Text style={{ fontSize: 12, color: "#8E8E93" }}>
-            Updated: {new Date(note.updated_at).toLocaleString()}
+            Created: {new Date(note.created_at).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
           </Text>
         </View>
 
@@ -217,7 +219,11 @@ export default function NoteDetailScreen() {
                 {todo.title}
               </Text>
               <Text style={{ fontSize: 12, color: "#8E8E93" }}>
-                Due: {new Date(todo.due_date).toLocaleString()}
+                Due: {new Date(todo.due_date).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
               </Text>
             </Pressable>
           </View>
@@ -236,12 +242,12 @@ export default function NoteDetailScreen() {
               marginTop: 12,
               marginBottom: 40,
               borderWidth: 1,
-              borderColor: "#007AFF",
+              borderColor: colors.primary,
               borderStyle: "dashed",
               borderRadius: 10,
             }}
           >
-            <Text style={{ color: "#007AFF", fontWeight: "600" }}>+ New Todo</Text>
+            <Text style={{ color: colors.primary, fontWeight: "600" }}>+ New Todo</Text>
           </Pressable>
       </ScrollView>
 

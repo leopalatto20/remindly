@@ -20,11 +20,11 @@ Work the **frontier**: any ticket whose blockers are all done. For a purely line
 
 **Blocked by:** Fix initial routing.
 
-- [ ] Category creation/edit shows a Lucide icon grid for selection
-- [ ] Selected Lucide icon displays in category list and detail views
-- [ ] No emojis used anywhere in the UI
-- [ ] `#0a4511` applied to primary action buttons, toggles, and active states
-- [ ] Accent color consistent across all screens
+- [x] Category creation/edit shows a Lucide icon grid for selection
+- [x] Selected Lucide icon displays in category list and detail views
+- [x] No emojis used anywhere in the UI
+- [x] `#0a4511` applied to primary action buttons, toggles, and active states
+- [x] Accent color consistent across all screens
 
 ## Fix UI bugs — screen overflow, placeholder visibility, timestamp display
 
