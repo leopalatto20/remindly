@@ -3,12 +3,11 @@ import {
   Alert,
   FlatList,
   Modal,
-  Pressable,
-  ScrollView,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { Pressable, ScrollView } from "react-native-gesture-handler";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 
 import {

@@ -1,4 +1,5 @@
-import { FlatList, Pressable, View } from "react-native";
+import { FlatList, View } from "react-native";
+import { Pressable } from "react-native-gesture-handler";
 import { DynamicIcon } from "../../lib/icons/DynamicIcon";
 import { useThemeColors } from "../../lib/theme/colors";
 

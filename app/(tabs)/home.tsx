@@ -3,12 +3,11 @@ import {
   Alert,
   FlatList,
   Modal,
-  Pressable,
-  ScrollView,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { Pressable, ScrollView } from "react-native-gesture-handler";
 import { router, useFocusEffect } from "expo-router";
 import { Settings } from "lucide-react-native";
 import { getAllCategories, deleteCategory, createCategory } from "../../lib/db/categories";
