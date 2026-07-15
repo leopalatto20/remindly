@@ -1,11 +1,13 @@
 import "../global.css";
 import { Stack } from "expo-router";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ThemeProvider } from "../lib/theme";
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <Stack>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider>
+        <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="category/[id]"
@@ -21,5 +23,6 @@ export default function RootLayout() {
         />
       </Stack>
     </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
