@@ -68,13 +68,13 @@ Work the **frontier**: any ticket whose blockers are all done. For a purely line
 
 **Blocked by:** Fix initial routing.
 
-- [ ] Note detail opens in view mode showing rendered markdown
-- [ ] Pencil icon visible in header, switches to edit mode
-- [ ] Edit mode shows raw markdown in an editable text area
-- [ ] Check icon visible in edit mode, saves and returns to view mode
-- [ ] Content saved on check tap
-- [ ] Content saved on navigation back (safety net)
-- [ ] Subtle toast shown on successful save
+- [x] Note detail opens in view mode showing rendered markdown
+- [x] Pencil icon visible in header, switches to edit mode
+- [x] Edit mode shows raw markdown in an editable text area
+- [x] Check icon visible in edit mode, saves and returns to view mode
+- [x] Content saved on check tap
+- [x] Content saved on navigation back (safety net)
+- [x] Subtle toast shown on successful save
 
 ## Add datetime picker to todo creation
 

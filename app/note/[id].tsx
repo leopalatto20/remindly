@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { Trash2 } from "lucide-react-native";
+import { Check, Pencil, Trash2 } from "lucide-react-native";
 
 import { getNote, updateNoteBody, deleteNote, type Note } from "../../lib/db/notes";
 import { getTodosByNote, createTodo, toggleTodoCompleted, type Todo } from "../../lib/db/todos";
@@ -29,7 +29,7 @@ export default function NoteDetailScreen() {
   const [toastMessage, setToastMessage] = useState("");
   const [todoModalVisible, setTodoModalVisible] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
-  const [showPreview, setShowPreview] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -55,27 +55,16 @@ export default function NoteDetailScreen() {
       const ts = await getTodosByNote(noteId);
       setTodos(ts);
     }
+    setIsEditing(false);
   }
 
-  const isInitialMount = useRef(true);
-  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-    if (debounceTimer.current) clearTimeout(debounceTimer.current);
-    debounceTimer.current = setTimeout(async () => {
-      if (!note) return;
-      await updateNoteBody(note.id, body);
-      setToastMessage("Saved");
-      setToastVisible(true);
-    }, 1000);
-    return () => {
-      if (debounceTimer.current) clearTimeout(debounceTimer.current);
-    };
-  }, [body]);
+  async function handleSave() {
+    if (!note) return;
+    await updateNoteBody(note.id, body);
+    setIsEditing(false);
+    setToastMessage("Saved");
+    setToastVisible(true);
+  }
 
   async function handleDelete() {
     if (!note) return;
@@ -128,17 +117,23 @@ export default function NoteDetailScreen() {
         <Pressable onPress={() => router.back()}>
           <Text style={{ color: colors.primary, fontSize: 16 }}>Back</Text>
         </Pressable>
-        <Pressable onPress={() => setShowPreview(!showPreview)} style={{ marginRight: 12 }}>
-          <Text style={{ color: colors.primary, fontSize: 14 }}>
-            {showPreview ? "Edit" : "Preview"}
-          </Text>
-        </Pressable>
         <Text style={{ fontSize: 18, fontWeight: "bold", flex: 1, textAlign: "center" }}>
           {note.title}
         </Text>
-        <Pressable onPress={handleDelete}>
-          <Trash2 size={20} color={colors.danger} />
-        </Pressable>
+        <View style={{ flexDirection: "row", gap: 12 }}>
+          {isEditing ? (
+            <Pressable onPress={handleSave}>
+              <Check size={20} color={colors.primary} />
+            </Pressable>
+          ) : (
+            <Pressable onPress={() => setIsEditing(true)}>
+              <Pencil size={20} color={colors.primary} />
+            </Pressable>
+          )}
+          <Pressable onPress={handleDelete}>
+            <Trash2 size={20} color={colors.danger} />
+          </Pressable>
+        </View>
       </View>
 
       <ScrollView style={{ flex: 1, padding: 16 }}>
@@ -152,11 +147,7 @@ export default function NoteDetailScreen() {
           </Text>
         </View>
 
-        {showPreview ? (
-          <View style={{ padding: 12, backgroundColor: colors.card, borderRadius: 10, minHeight: 200 }}>
-            <MarkdownPreview body={body} />
-          </View>
-        ) : (
+        {isEditing ? (
           <TextInput
             placeholder="Write in markdown..."
             value={body}
@@ -174,6 +165,10 @@ export default function NoteDetailScreen() {
             }}
             placeholderTextColor={colors.textSecondary}
           />
+        ) : (
+          <View style={{ padding: 12, backgroundColor: colors.card, borderRadius: 10, minHeight: 200 }}>
+            <MarkdownPreview body={body} />
+          </View>
         )}
 
         <Text
