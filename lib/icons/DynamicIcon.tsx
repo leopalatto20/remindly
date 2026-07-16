@@ -43,7 +43,12 @@ interface DynamicIconProps {
   strokeWidth?: number;
 }
 
-export function DynamicIcon({ name, size = 24, color = "#000", strokeWidth = 2 }: DynamicIconProps) {
+export function DynamicIcon({
+  name,
+  size = 24,
+  color = "#000",
+  strokeWidth = 2,
+}: DynamicIconProps) {
   const Icon = getLucideIcon(name);
   if (!Icon) return null;
   return <Icon size={size} color={color} strokeWidth={strokeWidth} />;

@@ -1,16 +1,10 @@
 import { useCallback, useState } from "react";
 import { LayoutChangeEvent, View } from "react-native";
-import Animated, {
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-} from "react-native-reanimated";
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { hexToHsv, hsvToHex } from "../../lib/colors";
 
-const HUE_COLORS = [
-  "#FF0000", "#FFFF00", "#00FF00", "#00FFFF", "#0000FF", "#FF00FF", "#FF0000",
-];
+const HUE_COLORS = ["#FF0000", "#FFFF00", "#00FF00", "#00FFFF", "#0000FF", "#FF00FF", "#FF0000"];
 
 function lerpColor(a: string, b: string, t: number): string {
   const ar = parseInt(a.slice(1, 3), 16);
@@ -22,7 +16,10 @@ function lerpColor(a: string, b: string, t: number): string {
   const rr = Math.round(ar + (br - ar) * t);
   const rg = Math.round(ag + (bg - ag) * t);
   const rb = Math.round(ab + (bb - ab) * t);
-  return `#${[rr, rg, rb].map((x) => x.toString(16).padStart(2, "0")).join("").toUpperCase()}`;
+  return `#${[rr, rg, rb]
+    .map((x) => x.toString(16).padStart(2, "0"))
+    .join("")
+    .toUpperCase()}`;
 }
 
 function generateHueSegments(count: number): string[] {
@@ -67,9 +64,7 @@ function ColorSlider({ value, onValueChange, colors }: SliderProps) {
     .minDistance(0);
 
   const thumbStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: pos.value * Math.max(width.value - 36, 0) },
-    ],
+    transform: [{ translateX: pos.value * Math.max(width.value - 36, 0) }],
   }));
 
   return (
@@ -153,12 +148,8 @@ export function ColorPicker({ selected, onSelect }: ColorPickerProps) {
   );
 
   const hueSegments = generateHueSegments(60);
-  const satColors = Array.from({ length: 20 }, (_, i) =>
-    hsvToHex(h, i / 19, 1),
-  );
-  const valColors = Array.from({ length: 20 }, (_, i) =>
-    hsvToHex(h, s, i / 19),
-  );
+  const satColors = Array.from({ length: 20 }, (_, i) => hsvToHex(h, i / 19, 1));
+  const valColors = Array.from({ length: 20 }, (_, i) => hsvToHex(h, s, i / 19));
 
   return (
     <View>
@@ -176,27 +167,15 @@ export function ColorPicker({ selected, onSelect }: ColorPickerProps) {
 
       <View style={{ gap: 16 }}>
         <View>
-          <ColorSlider
-            value={h / 360}
-            onValueChange={handleHue}
-            colors={hueSegments}
-          />
+          <ColorSlider value={h / 360} onValueChange={handleHue} colors={hueSegments} />
         </View>
 
         <View>
-          <ColorSlider
-            value={s}
-            onValueChange={handleSat}
-            colors={satColors}
-          />
+          <ColorSlider value={s} onValueChange={handleSat} colors={satColors} />
         </View>
 
         <View>
-          <ColorSlider
-            value={v}
-            onValueChange={handleVal}
-            colors={valColors}
-          />
+          <ColorSlider value={v} onValueChange={handleVal} colors={valColors} />
         </View>
       </View>
     </View>

@@ -1,10 +1,6 @@
 import { useEffect, useRef } from "react";
 
-export function useAutoSave(
-  saveFn: () => Promise<void>,
-  deps: unknown[],
-  delay: number = 1000
-) {
+export function useAutoSave(saveFn: () => Promise<void>, deps: unknown[], delay: number = 1000) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveFnRef = useRef(saveFn);
   saveFnRef.current = saveFn;

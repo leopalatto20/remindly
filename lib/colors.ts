@@ -6,7 +6,10 @@ export function hsvToHex(h: number, s: number, v: number): string {
   const r = Math.round(f(5) * 255);
   const g = Math.round(f(3) * 255);
   const b = Math.round(f(1) * 255);
-  return `#${[r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("").toUpperCase()}`;
+  return `#${[r, g, b]
+    .map((x) => x.toString(16).padStart(2, "0"))
+    .join("")
+    .toUpperCase()}`;
 }
 
 export function hexToHsv(hex: string): { h: number; s: number; v: number } {

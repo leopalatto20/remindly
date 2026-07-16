@@ -8,21 +8,15 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
         <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="category/[id]"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="note/[id]"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="settings"
-          options={{ headerShown: true, title: "Settings", presentation: "modal" }}
-        />
-      </Stack>
-    </ThemeProvider>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="category/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="note/[id]" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="settings"
+            options={{ headerShown: true, title: "Settings", presentation: "modal" }}
+          />
+        </Stack>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }

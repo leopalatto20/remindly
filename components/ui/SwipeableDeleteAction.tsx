@@ -27,9 +27,7 @@ export function SwipeableDeleteAction({ children, onDelete }: SwipeableDeleteAct
           }}
         >
           <Trash2 size={22} color="#fff" />
-          <Text style={{ color: "#fff", fontSize: 12, marginTop: 2 }}>
-            Delete
-          </Text>
+          <Text style={{ color: "#fff", fontSize: 12, marginTop: 2 }}>Delete</Text>
         </Pressable>
       )}
       overshootRight={false}

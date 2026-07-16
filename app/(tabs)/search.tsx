@@ -16,7 +16,7 @@ export default function SearchScreen() {
         setQuery("");
         setResults([]);
       };
-    }, [])
+    }, []),
   );
 
   async function handleSearch(text: string) {
@@ -44,7 +44,7 @@ export default function SearchScreen() {
       }
       return acc;
     },
-    { notes: {}, todos: {} }
+    { notes: {}, todos: {} },
   );
 
   const sections: { type: "header" | "result"; data: SearchResult | string }[] = [];
@@ -67,9 +67,7 @@ export default function SearchScreen() {
   return (
     <ThemedScreen>
       <View style={{ padding: 16, paddingTop: 60 }}>
-        <Text style={{ fontSize: 28, fontWeight: "bold", marginBottom: 16 }}>
-          Search
-        </Text>
+        <Text style={{ fontSize: 28, fontWeight: "bold", marginBottom: 16 }}>Search</Text>
         <TextInput
           placeholder="Search notes and todos..."
           value={query}
@@ -96,9 +94,7 @@ export default function SearchScreen() {
 
       {sections.length === 0 && !query.trim() ? (
         <View style={{ alignItems: "center", paddingTop: 40 }}>
-          <Text style={{ fontSize: 16, color: colors.textSecondary }}>
-            Type to search
-          </Text>
+          <Text style={{ fontSize: 16, color: colors.textSecondary }}>Type to search</Text>
         </View>
       ) : null}
 
@@ -125,10 +121,8 @@ export default function SearchScreen() {
           return (
             <Pressable
               onPress={() => {
-                if (r.type === "note")
-                  router.push(`/note/${r.id}`);
-                else
-                  router.push(`/note/${(r as any).note_id}`);
+                if (r.type === "note") router.push(`/note/${r.id}`);
+                else router.push(`/note/${(r as any).note_id}`);
               }}
               style={{
                 flexDirection: "row",

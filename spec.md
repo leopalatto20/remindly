@@ -79,6 +79,7 @@ A local-first, multiplatform note-taking app built with Expo where every note be
 ## Implementation Decisions
 
 ### Tech Stack
+
 - **Framework**: Expo (React Native) with Expo Router for file-based routing
 - **Database**: SQLite via expo-sqlite with FTS5 for full-text search
 - **Styling**: NativeWind (Tailwind CSS for React Native)
@@ -87,18 +88,21 @@ A local-first, multiplatform note-taking app built with Expo where every note be
 - **Icons**: Lucide React Native (curated subset for categories)
 
 ### Data Model
+
 - Three tables: `categories`, `notes`, `todos`
 - Foreign keys with CASCADE deletes: category -> notes -> todos
 - FTS5 virtual tables for search: `notes_fts` (title, body), `todos_fts` (title)
 - Indexes on foreign keys and due_date for query performance
 
 ### Auto-Save Behavior
+
 - 1 second debounce on text input changes
 - Additional save trigger on navigation back
 - Subtle toast notification on successful save
 - `updated_at` timestamp updated on every save
 
 ### Search Implementation
+
 - SQLite FTS5 for full-text search across note titles, note bodies, and todo titles
 - Results grouped by type (Notes/Todos), then by category
 - Color-coded category headers for visual identification
@@ -106,16 +110,19 @@ A local-first, multiplatform note-taking app built with Expo where every note be
 - Empty state message: "No results for '{query}'"
 
 ### Home Screen Todos
+
 - Initially shows 5 most urgent todos (due this week, sorted by closest date)
 - Expandable section to show all todos due this week
 - Positioned above categories list (first thing user sees)
 
 ### Navigation Structure
+
 - Bottom tabs: Home, Search
 - Stack flow: Home -> Category Detail -> Note Detail
 - Settings as modal (gear icon in home top bar)
 
 ### Modal-Based Editing
+
 - Categories: create/edit via modal
 - Todos: create/edit via modal (accommodates date/time picker)
 - Notes: inline creation (title prompt) then navigate to editor
@@ -123,11 +130,13 @@ A local-first, multiplatform note-taking app built with Expo where every note be
 ## Testing Decisions
 
 ### Test Philosophy
+
 - Test external behavior, not implementation details
 - Focus on user-facing functionality
 - Integration tests over unit tests where possible
 
 ### Key Test Areas
+
 - **Database operations**: CRUD for categories, notes, todos; cascade deletes; FTS search
 - **Auto-save**: Debounce timing, save on navigation, toast feedback
 - **Search**: FTS queries, result grouping, empty states
@@ -135,6 +144,7 @@ A local-first, multiplatform note-taking app built with Expo where every note be
 - **Theme**: Light/dark/system detection, persistence
 
 ### Test Approach
+
 - Component rendering tests with React Native Testing Library
 - Database integration tests using expo-sqlite in test environment
 - E2E tests for critical user flows (create category -> create note -> add todo -> search)

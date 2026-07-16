@@ -1,13 +1,5 @@
 import { useCallback, useState } from "react";
-import {
-  Alert,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Alert, Pressable, SafeAreaView, ScrollView, Text, TextInput, View } from "react-native";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Check, Pencil, Trash2, ArrowLeft } from "lucide-react-native";
 
@@ -35,7 +27,7 @@ export default function NoteDetailScreen() {
   useFocusEffect(
     useCallback(() => {
       if (id) loadNote(Number(id));
-    }, [id])
+    }, [id]),
   );
 
   useFocusEffect(
@@ -45,7 +37,7 @@ export default function NoteDetailScreen() {
           updateNoteBody(note.id, body);
         }
       };
-    }, [note?.id, body])
+    }, [note?.id, body]),
   );
 
   async function loadNote(noteId: number) {
@@ -108,199 +100,195 @@ export default function NoteDetailScreen() {
   return (
     <ThemedScreen>
       <SafeAreaView style={{ flex: 1 }}>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingHorizontal: 16,
-          paddingVertical: 8,
-        }}
-      >
-        <Pressable onPress={() => router.back()}>
-          <ArrowLeft size={20} color={colors.primary} />
-        </Pressable>
-        <View style={{ flexDirection: "row", gap: 12 }}>
-          {isEditing ? (
-            <Pressable onPress={handleSave}>
-              <Check size={20} color={colors.primary} />
-            </Pressable>
-          ) : (
-            <Pressable onPress={() => setIsEditing(true)}>
-              <Pencil size={20} color={colors.primary} />
-            </Pressable>
-          )}
-          <Pressable onPress={handleDelete}>
-            <Trash2 size={20} color={colors.danger} />
-          </Pressable>
-        </View>
-      </View>
-
-      <ScrollView style={{ flex: 1, paddingHorizontal: 16 }}>
-        <View style={{ marginTop: 12, marginBottom: 16 }}>
-          <Text
-            style={{
-              fontSize: 28,
-              fontWeight: "700",
-              letterSpacing: -0.3,
-              lineHeight: 34,
-              color: colors.text,
-            }}
-          >
-            {note.title}
-          </Text>
-          <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 2 }}>
-            {new Date(note.created_at).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
-          </Text>
-        </View>
-
-        {isEditing ? (
-          <TextInput
-            placeholder="Write in markdown..."
-            value={body}
-            onChangeText={setBody}
-            multiline
-            style={{
-              padding: 12,
-              backgroundColor: colors.card,
-              borderRadius: 10,
-              fontSize: 17,
-              minHeight: 200,
-              textAlignVertical: "top",
-              lineHeight: 27,
-              color: colors.text,
-            }}
-            placeholderTextColor={colors.textSecondary}
-          />
-        ) : (
-          <View style={{ minHeight: 200 }}>
-            <MarkdownPreview body={body} />
-          </View>
-        )}
-
         <View
           style={{
             flexDirection: "row",
+            justifyContent: "space-between",
             alignItems: "center",
-            gap: 8,
-            marginTop: 36,
-            paddingTop: 20,
-            borderTopWidth: 1,
-            borderTopColor: colors.border,
+            paddingHorizontal: 16,
+            paddingVertical: 8,
           }}
         >
-          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text }}>
-            Todos
-          </Text>
-          {todos.length > 0 && (
-            <View
-              style={{
-                backgroundColor: colors.card,
-                paddingHorizontal: 8,
-                paddingVertical: 2,
-                borderRadius: 10,
-              }}
-            >
-              <Text style={{ fontSize: 11, color: colors.textSecondary }}>
-                {completedCount}/{todos.length}
-              </Text>
-            </View>
-          )}
+          <Pressable onPress={() => router.back()}>
+            <ArrowLeft size={20} color={colors.primary} />
+          </Pressable>
+          <View style={{ flexDirection: "row", gap: 12 }}>
+            {isEditing ? (
+              <Pressable onPress={handleSave}>
+                <Check size={20} color={colors.primary} />
+              </Pressable>
+            ) : (
+              <Pressable onPress={() => setIsEditing(true)}>
+                <Pencil size={20} color={colors.primary} />
+              </Pressable>
+            )}
+            <Pressable onPress={handleDelete}>
+              <Trash2 size={20} color={colors.danger} />
+            </Pressable>
+          </View>
         </View>
 
-        {todos.map((todo) => (
+        <ScrollView style={{ flex: 1, paddingHorizontal: 16 }}>
+          <View style={{ marginTop: 12, marginBottom: 16 }}>
+            <Text
+              style={{
+                fontSize: 28,
+                fontWeight: "700",
+                letterSpacing: -0.3,
+                lineHeight: 34,
+                color: colors.text,
+              }}
+            >
+              {note.title}
+            </Text>
+            <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 2 }}>
+              {new Date(note.created_at).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </Text>
+          </View>
+
+          {isEditing ? (
+            <TextInput
+              placeholder="Write in markdown..."
+              value={body}
+              onChangeText={setBody}
+              multiline
+              style={{
+                padding: 12,
+                backgroundColor: colors.card,
+                borderRadius: 10,
+                fontSize: 17,
+                minHeight: 200,
+                textAlignVertical: "top",
+                lineHeight: 27,
+                color: colors.text,
+              }}
+              placeholderTextColor={colors.textSecondary}
+            />
+          ) : (
+            <View style={{ minHeight: 200 }}>
+              <MarkdownPreview body={body} />
+            </View>
+          )}
+
           <View
-            key={todo.id}
             style={{
               flexDirection: "row",
               alignItems: "center",
-              paddingVertical: 6,
-              opacity: todo.completed ? 0.5 : 1,
+              gap: 8,
+              marginTop: 36,
+              paddingTop: 20,
+              borderTopWidth: 1,
+              borderTopColor: colors.border,
             }}
           >
-            <Pressable
-              onPress={() => handleToggleTodo(todo.id)}
-              hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
-              style={{
-                width: 18,
-                height: 18,
-                borderRadius: 9,
-                borderWidth: 2,
-                borderColor: todo.completed ? colors.success : colors.border,
-                backgroundColor: todo.completed ? colors.success : "transparent",
-                marginRight: 10,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            />
-            <Pressable style={{ flex: 1 }} onPress={() => handleTapTodo(todo)}>
-              <Text
+            <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text }}>Todos</Text>
+            {todos.length > 0 && (
+              <View
                 style={{
-                  fontSize: 14,
-                  textDecorationLine: todo.completed ? "line-through" : "none",
-                  color: colors.text,
+                  backgroundColor: colors.card,
+                  paddingHorizontal: 8,
+                  paddingVertical: 2,
+                  borderRadius: 10,
                 }}
               >
-                {todo.title}
-              </Text>
-              <Text style={{ fontSize: 11, color: colors.textSecondary, marginTop: 1 }}>
-                {new Date(todo.due_date).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
-              </Text>
-            </Pressable>
+                <Text style={{ fontSize: 11, color: colors.textSecondary }}>
+                  {completedCount}/{todos.length}
+                </Text>
+              </View>
+            )}
           </View>
-        ))}
 
-        <Pressable
-          onPress={() => {
+          {todos.map((todo) => (
+            <View
+              key={todo.id}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                paddingVertical: 6,
+                opacity: todo.completed ? 0.5 : 1,
+              }}
+            >
+              <Pressable
+                onPress={() => handleToggleTodo(todo.id)}
+                hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
+                style={{
+                  width: 18,
+                  height: 18,
+                  borderRadius: 9,
+                  borderWidth: 2,
+                  borderColor: todo.completed ? colors.success : colors.border,
+                  backgroundColor: todo.completed ? colors.success : "transparent",
+                  marginRight: 10,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              />
+              <Pressable style={{ flex: 1 }} onPress={() => handleTapTodo(todo)}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    textDecorationLine: todo.completed ? "line-through" : "none",
+                    color: colors.text,
+                  }}
+                >
+                  {todo.title}
+                </Text>
+                <Text style={{ fontSize: 11, color: colors.textSecondary, marginTop: 1 }}>
+                  {new Date(todo.due_date).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </Text>
+              </Pressable>
+            </View>
+          ))}
+
+          <Pressable
+            onPress={() => {
+              setEditingTodo(null);
+              setTodoModalVisible(true);
+            }}
+            style={{ marginTop: 8, marginBottom: 40 }}
+          >
+            <Text style={{ color: colors.primary, fontWeight: "500", fontSize: 14 }}>+ Add</Text>
+          </Pressable>
+        </ScrollView>
+
+        <TodoModal
+          visible={todoModalVisible}
+          todo={editingTodo}
+          onSave={async (title, dueDate) => {
+            if (editingTodo) {
+              const { updateTodo } = await import("../../lib/db/todos");
+              await updateTodo(editingTodo.id, title, dueDate);
+            } else if (note) {
+              const { createTodo } = await import("../../lib/db/todos");
+              await createTodo(title, dueDate, note.id);
+            }
+            setTodoModalVisible(false);
             setEditingTodo(null);
-            setTodoModalVisible(true);
+            if (note) {
+              const ts = await getTodosByNote(note.id);
+              setTodos(ts);
+            }
           }}
-          style={{ marginTop: 8, marginBottom: 40 }}
-        >
-          <Text style={{ color: colors.primary, fontWeight: "500", fontSize: 14 }}>
-            + Add
-          </Text>
-        </Pressable>
-      </ScrollView>
+          onClose={() => {
+            setTodoModalVisible(false);
+            setEditingTodo(null);
+          }}
+        />
 
-      <TodoModal
-        visible={todoModalVisible}
-        todo={editingTodo}
-        onSave={async (title, dueDate) => {
-          if (editingTodo) {
-            const { updateTodo } = await import("../../lib/db/todos");
-            await updateTodo(editingTodo.id, title, dueDate);
-          } else if (note) {
-            const { createTodo } = await import("../../lib/db/todos");
-            await createTodo(title, dueDate, note.id);
-          }
-          setTodoModalVisible(false);
-          setEditingTodo(null);
-          if (note) {
-            const ts = await getTodosByNote(note.id);
-            setTodos(ts);
-          }
-        }}
-        onClose={() => {
-          setTodoModalVisible(false);
-          setEditingTodo(null);
-        }}
-      />
-
-      <Toast
-        message={toastMessage}
-        visible={toastVisible}
-        onHide={() => setToastVisible(false)}
-      />
-    </SafeAreaView>
+        <Toast
+          message={toastMessage}
+          visible={toastVisible}
+          onHide={() => setToastVisible(false)}
+        />
+      </SafeAreaView>
     </ThemedScreen>
   );
 }

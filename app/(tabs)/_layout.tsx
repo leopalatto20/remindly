@@ -16,9 +16,7 @@ export default function TabLayout() {
         options={{
           title: "Home",
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Home size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -26,9 +24,7 @@ export default function TabLayout() {
         options={{
           title: "Search",
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Search size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Search size={size} color={color} />,
         }}
       />
     </Tabs>

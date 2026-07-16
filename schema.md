@@ -3,6 +3,7 @@
 ## Tables
 
 ### categories
+
 ```sql
 CREATE TABLE categories (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -15,6 +16,7 @@ CREATE TABLE categories (
 ```
 
 ### notes
+
 ```sql
 CREATE TABLE notes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,6 +30,7 @@ CREATE TABLE notes (
 ```
 
 ### todos
+
 ```sql
 CREATE TABLE todos (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,6 +45,7 @@ CREATE TABLE todos (
 ```
 
 ## Indexes
+
 ```sql
 -- For search
 CREATE VIRTUAL TABLE notes_fts USING fts5(title, body, content=notes, content_rowid=id);
@@ -55,5 +59,6 @@ CREATE INDEX idx_todos_completed ON todos(completed);
 ```
 
 ## Cascading Deletes
+
 - Deleting a category deletes all its notes
 - Deleting a note deletes all its todos

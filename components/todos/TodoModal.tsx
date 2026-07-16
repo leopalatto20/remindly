@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  Modal,
-  Platform,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Modal, Platform, Pressable, Text, TextInput, View } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import type { Todo } from "../../lib/db/todos";
 import { useThemeColors } from "../../lib/theme/colors";
@@ -25,7 +18,7 @@ export function TodoModal({ visible, todo, onSave, onClose }: TodoModalProps) {
   const defaultDate = new Date(Date.now() + 86400000);
   defaultDate.setHours(12, 0, 0, 0);
   const [selectedDate, setSelectedDate] = useState<Date>(
-    todo ? new Date(todo.due_date) : defaultDate
+    todo ? new Date(todo.due_date) : defaultDate,
   );
 
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -144,34 +137,17 @@ export function TodoModal({ visible, todo, onSave, onClose }: TodoModalProps) {
 
           {Platform.OS === "ios" && (
             <View style={{ marginBottom: 16, gap: 8 }}>
-              <DateTimePicker
-                value={selectedDate}
-                mode="date"
-                onChange={onDateChange}
-              />
-              <DateTimePicker
-                value={selectedDate}
-                mode="time"
-                onChange={onTimeChange}
-              />
+              <DateTimePicker value={selectedDate} mode="date" onChange={onDateChange} />
+              <DateTimePicker value={selectedDate} mode="time" onChange={onTimeChange} />
             </View>
           )}
 
           {Platform.OS === "android" && showDatePicker && (
-            <DateTimePicker
-              value={selectedDate}
-              mode="date"
-              onChange={onDateChange}
-            />
+            <DateTimePicker value={selectedDate} mode="date" onChange={onDateChange} />
           )}
 
           {Platform.OS === "android" && showTimePicker && (
-            <DateTimePicker
-              value={selectedDate}
-              mode="time"
-              is24Hour
-              onChange={onTimeChange}
-            />
+            <DateTimePicker value={selectedDate} mode="time" is24Hour onChange={onTimeChange} />
           )}
 
           <View style={{ flexDirection: "row", gap: 8 }}>

@@ -36,7 +36,7 @@ export async function search(query: string): Promise<SearchResult[]> {
      JOIN categories c ON c.id = n.category_id
      WHERE notes_fts MATCH ?
      ORDER BY rank`,
-    ftsQuery
+    ftsQuery,
   );
 
   const todos = await db.getAllAsync<SearchResultTodo>(
@@ -47,7 +47,7 @@ export async function search(query: string): Promise<SearchResult[]> {
      JOIN categories c ON c.id = n.category_id
      WHERE todos_fts MATCH ?
      ORDER BY rank`,
-    ftsQuery
+    ftsQuery,
   );
 
   return [...notes, ...todos];

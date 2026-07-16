@@ -25,14 +25,10 @@ export function MarkdownPreview({ body }: MarkdownPreviewProps) {
 
     if (!trimmed) {
       if (inList) {
-        elements.push(
-          <View key={i} style={{ height: 8 }} />
-        );
+        elements.push(<View key={i} style={{ height: 8 }} />);
         inList = false;
       } else {
-        elements.push(
-          <View key={i} style={{ height: 12 }} />
-        );
+        elements.push(<View key={i} style={{ height: 12 }} />);
       }
       return;
     }
@@ -50,7 +46,7 @@ export function MarkdownPreview({ body }: MarkdownPreviewProps) {
           }}
         >
           {trimmed.substring(2)}
-        </Text>
+        </Text>,
       );
     } else if (trimmed.startsWith("## ")) {
       inList = false;
@@ -65,7 +61,7 @@ export function MarkdownPreview({ body }: MarkdownPreviewProps) {
           }}
         >
           {trimmed.substring(3)}
-        </Text>
+        </Text>,
       );
     } else if (trimmed.startsWith("### ")) {
       inList = false;
@@ -80,48 +76,37 @@ export function MarkdownPreview({ body }: MarkdownPreviewProps) {
           }}
         >
           {trimmed.substring(4)}
-        </Text>
+        </Text>,
       );
     } else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
       inList = true;
       elements.push(
-        <View
-          key={i}
-          style={{ flexDirection: "row", marginBottom: 2, paddingLeft: 8 }}
-        >
+        <View key={i} style={{ flexDirection: "row", marginBottom: 2, paddingLeft: 8 }}>
           <Text style={{ fontSize: 16, marginRight: 6 }}>{"\u2022"}</Text>
           <Text style={{ fontSize: 16, flex: 1, lineHeight: 22 }}>
             {renderInline(trimmed.substring(2), colors)}
           </Text>
-        </View>
+        </View>,
       );
     } else if (/^\d+\.\s/.test(trimmed)) {
       inList = false;
       const match = trimmed.match(/^(\d+)\.\s(.*)/);
       if (match) {
         elements.push(
-          <View
-            key={i}
-            style={{ flexDirection: "row", marginBottom: 2, paddingLeft: 8 }}
-          >
-            <Text style={{ fontSize: 16, marginRight: 6, width: 20 }}>
-              {match[1]}.
-            </Text>
+          <View key={i} style={{ flexDirection: "row", marginBottom: 2, paddingLeft: 8 }}>
+            <Text style={{ fontSize: 16, marginRight: 6, width: 20 }}>{match[1]}.</Text>
             <Text style={{ fontSize: 16, flex: 1, lineHeight: 22 }}>
               {renderInline(match[2], colors)}
             </Text>
-          </View>
+          </View>,
         );
       }
     } else {
       inList = false;
       elements.push(
-        <Text
-          key={i}
-          style={{ fontSize: 16, lineHeight: 24, marginBottom: 2 }}
-        >
+        <Text key={i} style={{ fontSize: 16, lineHeight: 24, marginBottom: 2 }}>
           {renderInline(trimmed, colors)}
-        </Text>
+        </Text>,
       );
     }
   });
@@ -131,7 +116,7 @@ export function MarkdownPreview({ body }: MarkdownPreviewProps) {
 
 function renderInline(text: string, colors: ReturnType<typeof useThemeColors>): React.ReactNode {
   const parts: React.ReactNode[] = [];
-  let remaining = text;
+  const remaining = text;
 
   const regex = /(\*\*(.*?)\*\*|__(.*?)__|\*(.*?)\*|_(.*?)_|`(.*?)`|~~(.*?)~~)/g;
   let lastIndex = 0;
@@ -146,25 +131,25 @@ function renderInline(text: string, colors: ReturnType<typeof useThemeColors>): 
       parts.push(
         <Text key={match.index} style={{ fontWeight: "bold" }}>
           {match[2]}
-        </Text>
+        </Text>,
       );
     } else if (match[3]) {
       parts.push(
         <Text key={match.index} style={{ fontWeight: "bold" }}>
           {match[3]}
-        </Text>
+        </Text>,
       );
     } else if (match[4]) {
       parts.push(
         <Text key={match.index} style={{ fontStyle: "italic" }}>
           {match[4]}
-        </Text>
+        </Text>,
       );
     } else if (match[5]) {
       parts.push(
         <Text key={match.index} style={{ fontStyle: "italic" }}>
           {match[5]}
-        </Text>
+        </Text>,
       );
     } else if (match[6]) {
       parts.push(
@@ -178,16 +163,13 @@ function renderInline(text: string, colors: ReturnType<typeof useThemeColors>): 
           }}
         >
           {match[6]}
-        </Text>
+        </Text>,
       );
     } else if (match[7]) {
       parts.push(
-        <Text
-          key={match.index}
-          style={{ textDecorationLine: "line-through" }}
-        >
+        <Text key={match.index} style={{ textDecorationLine: "line-through" }}>
           {match[7]}
-        </Text>
+        </Text>,
       );
     }
 

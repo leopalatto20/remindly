@@ -1,12 +1,5 @@
 import { useCallback, useState } from "react";
-import {
-  Alert,
-  FlatList,
-  Modal,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Alert, FlatList, Modal, Text, TextInput, View } from "react-native";
 import { Pressable, ScrollView } from "react-native-gesture-handler";
 import { router, useFocusEffect } from "expo-router";
 import { Settings } from "lucide-react-native";
@@ -25,16 +18,16 @@ export default function HomeScreen() {
   const colors = useThemeColors();
   const [categories, setCategories] = useState<Category[]>([]);
   const [urgentTodos, setUrgentTodos] = useState<Todo[]>([]);
-const [showAllUrgent, setShowAllUrgent] = useState(false);
-const [showCreateModal, setShowCreateModal] = useState(false);
-const [newCatName, setNewCatName] = useState("");
-const [newCatIcon, setNewCatIcon] = useState("Book");
-const [newCatColor, setNewCatColor] = useState("#007AFF");
+  const [showAllUrgent, setShowAllUrgent] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newCatName, setNewCatName] = useState("");
+  const [newCatIcon, setNewCatIcon] = useState("Book");
+  const [newCatColor, setNewCatColor] = useState("#007AFF");
 
   useFocusEffect(
     useCallback(() => {
       loadData();
-    }, [])
+    }, []),
   );
 
   async function loadData() {
@@ -45,21 +38,17 @@ const [newCatColor, setNewCatColor] = useState("#007AFF");
   }
 
   function handleDeleteCategory(cat: Category) {
-    Alert.alert(
-      "Delete Category",
-      `Delete "${cat.name}" and all its notes?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            await deleteCategory(cat.id);
-            loadData();
-          },
+    Alert.alert("Delete Category", `Delete "${cat.name}" and all its notes?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          await deleteCategory(cat.id);
+          loadData();
         },
-      ]
-    );
+      },
+    ]);
   }
 
   return (
@@ -164,34 +153,35 @@ const [newCatColor, setNewCatColor] = useState("#007AFF");
                   </Text>
                 </Pressable>
               )}
-              {showAllUrgent && urgentTodos.slice(5).map((todo) => (
-                <Pressable
-                  key={todo.id}
-                  onPress={() => {
-                    const { toggleTodoCompleted } = require("../../lib/db/todos");
-                    toggleTodoCompleted(todo.id).then(() => loadData());
-                  }}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    padding: 12,
-                    backgroundColor: colors.warning + "20",
-                    borderRadius: 8,
-                    marginBottom: 4,
-                  }}
-                >
-                  <View
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: 4,
-                      backgroundColor: (todo as any).category_color || "#FF9500",
-                      marginRight: 8,
+              {showAllUrgent &&
+                urgentTodos.slice(5).map((todo) => (
+                  <Pressable
+                    key={todo.id}
+                    onPress={() => {
+                      const { toggleTodoCompleted } = require("../../lib/db/todos");
+                      toggleTodoCompleted(todo.id).then(() => loadData());
                     }}
-                  />
-                  <Text style={{ fontSize: 14, flex: 1 }}>{todo.title}</Text>
-                </Pressable>
-              ))}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      padding: 12,
+                      backgroundColor: colors.warning + "20",
+                      borderRadius: 8,
+                      marginBottom: 4,
+                    }}
+                  >
+                    <View
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: 4,
+                        backgroundColor: (todo as any).category_color || "#FF9500",
+                        marginRight: 8,
+                      }}
+                    />
+                    <Text style={{ fontSize: 14, flex: 1 }}>{todo.title}</Text>
+                  </Pressable>
+                ))}
             </View>
           ) : null
         }
@@ -224,7 +214,7 @@ const [newCatColor, setNewCatColor] = useState("#007AFF");
           </View>
         }
       />
-    <Modal visible={showCreateModal} transparent animationType="slide">
+      <Modal visible={showCreateModal} transparent animationType="slide">
         <View
           style={{
             flex: 1,
@@ -242,7 +232,9 @@ const [newCatColor, setNewCatColor] = useState("#007AFF");
             }}
           >
             <ScrollView>
-              <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 16, color: colors.text }}>
+              <Text
+                style={{ fontSize: 20, fontWeight: "bold", marginBottom: 16, color: colors.text }}
+              >
                 New Category
               </Text>
               <TextInput
