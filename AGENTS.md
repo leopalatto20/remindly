@@ -6,7 +6,7 @@ A simple note-taking multiplatform app designed as a personal diary/notebook.
 
 ### Issue tracker
 
-Linear — issues live in the team's Linear workspace, accessed via the Linear MCP tools. See `docs/agents/issue-tracker.md`.
+GitHub — issues live in the repo's GitHub Issues, accessed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
