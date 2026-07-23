@@ -94,6 +94,7 @@ A simple note-taking multiplatform app designed as a personal diary/notebook. Th
 
 - Theme toggle (light/dark/system)
 - System preference selected by default
+- Data section with Export and Import actions
 
 ## UI/UX Decisions
 
@@ -142,6 +143,20 @@ A simple note-taking multiplatform app designed as a personal diary/notebook. Th
 - Primary accent color: `#0a4511` — used for interactive elements (buttons, toggles, active states) to give the app personality
 - Destructive/info states use their own standard colors
 
+## Backup
+
+**Backup**:
+A JSON file containing all user data (categories, notes, todos) with preserved database IDs. Used for data safety and device transfer.
+_Avoid_: Snapshot, dump, archive
+
+**Export**:
+The action of creating a backup file from the app's data. Delivered via the OS share sheet. Filename includes the date: `remindly-backup-YYYY-MM-DD.json`.
+_Avoid_: Download, save
+
+**Import**:
+The action of replacing all app data with the contents of a backup file. Full replace — existing data is wiped before import. File is validated first; if invalid, nothing changes.
+_Avoid_: Restore, load
+
 ## Search Implementation
 
 - Full-text search using SQLite FTS
@@ -178,6 +193,5 @@ code/projects/remindly/
 
 ## Future Considerations (not v1)
 
-- Data backup/export
 - Custom app icon/splash screen
 - Rich text editor enhancements
