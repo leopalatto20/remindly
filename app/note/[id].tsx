@@ -4,8 +4,16 @@ import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Check, Pencil, Trash2, ArrowLeft } from "lucide-react-native";
 
 import { getNote, updateNoteBody, deleteNote, type Note } from "../../lib/db/notes";
-import { getTodosByNote, createTodo, toggleTodoCompleted, type Todo } from "../../lib/db/todos";
+import {
+  getTodosByNote,
+  createTodo,
+  updateTodo,
+  toggleTodoCompleted,
+  type Todo,
+} from "../../lib/db/todos";
 import { TodoModal } from "../../components/todos/TodoModal";
+import { TodoListModal } from "../../components/todos/TodoListModal";
+import { TodoHeaderBadge } from "../../components/todos/TodoHeaderBadge";
 import { MarkdownPreview } from "../../components/notes/MarkdownPreview";
 
 import { Toast } from "../../components/ui/Toast";
@@ -15,14 +23,18 @@ import { useThemeColors } from "../../lib/theme/colors";
 export default function NoteDetailScreen() {
   const colors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
+
   const [note, setNote] = useState<Note | null>(null);
   const [body, setBody] = useState("");
   const [todos, setTodos] = useState<Todo[]>([]);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [todoListVisible, setTodoListVisible] = useState(false);
   const [todoModalVisible, setTodoModalVisible] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [returnToList, setReturnToList] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -51,6 +63,13 @@ export default function NoteDetailScreen() {
     setIsEditing(false);
   }
 
+  async function refreshTodos() {
+    if (note) {
+      const ts = await getTodosByNote(note.id);
+      setTodos(ts);
+    }
+  }
+
   async function handleSave() {
     if (!note) return;
     await updateNoteBody(note.id, body);
@@ -76,15 +95,21 @@ export default function NoteDetailScreen() {
 
   async function handleToggleTodo(todoId: number) {
     await toggleTodoCompleted(todoId);
-    if (note) {
-      const ts = await getTodosByNote(note.id);
-      setTodos(ts);
-    }
+    await refreshTodos();
   }
 
-  async function handleTapTodo(todo: Todo) {
+  function handleTapTodo(todo: Todo) {
     setEditingTodo(todo);
-    setTodoModalVisible(true);
+    setReturnToList(true);
+    setTodoListVisible(false);
+    setTimeout(() => setTodoModalVisible(true), 200);
+  }
+
+  function handleAddTodo() {
+    setEditingTodo(null);
+    setReturnToList(true);
+    setTodoListVisible(false);
+    setTimeout(() => setTodoModalVisible(true), 200);
   }
 
   if (!note) {
@@ -94,8 +119,6 @@ export default function NoteDetailScreen() {
       </View>
     );
   }
-
-  const completedCount = todos.filter((t) => t.completed).length;
 
   return (
     <ThemedScreen>
@@ -112,7 +135,8 @@ export default function NoteDetailScreen() {
           <Pressable onPress={() => router.back()}>
             <ArrowLeft size={20} color={colors.primary} />
           </Pressable>
-          <View style={{ flexDirection: "row", gap: 12 }}>
+          <View style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
+            <TodoHeaderBadge todos={todos} onPress={() => setTodoListVisible(true)} />
             {isEditing ? (
               <Pressable onPress={handleSave}>
                 <Check size={20} color={colors.primary} />
@@ -173,113 +197,41 @@ export default function NoteDetailScreen() {
               <MarkdownPreview body={body} />
             </View>
           )}
-
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 8,
-              marginTop: 36,
-              paddingTop: 20,
-              borderTopWidth: 1,
-              borderTopColor: colors.border,
-            }}
-          >
-            <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text }}>Todos</Text>
-            {todos.length > 0 && (
-              <View
-                style={{
-                  backgroundColor: colors.card,
-                  paddingHorizontal: 8,
-                  paddingVertical: 2,
-                  borderRadius: 10,
-                }}
-              >
-                <Text style={{ fontSize: 11, color: colors.textSecondary }}>
-                  {completedCount}/{todos.length}
-                </Text>
-              </View>
-            )}
-          </View>
-
-          {todos.map((todo) => (
-            <View
-              key={todo.id}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                paddingVertical: 6,
-                opacity: todo.completed ? 0.5 : 1,
-              }}
-            >
-              <Pressable
-                onPress={() => handleToggleTodo(todo.id)}
-                hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
-                style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: 9,
-                  borderWidth: 2,
-                  borderColor: todo.completed ? colors.success : colors.border,
-                  backgroundColor: todo.completed ? colors.success : "transparent",
-                  marginRight: 10,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              />
-              <Pressable style={{ flex: 1 }} onPress={() => handleTapTodo(todo)}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    textDecorationLine: todo.completed ? "line-through" : "none",
-                    color: colors.text,
-                  }}
-                >
-                  {todo.title}
-                </Text>
-                <Text style={{ fontSize: 11, color: colors.textSecondary, marginTop: 1 }}>
-                  {new Date(todo.due_date).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </Text>
-              </Pressable>
-            </View>
-          ))}
-
-          <Pressable
-            onPress={() => {
-              setEditingTodo(null);
-              setTodoModalVisible(true);
-            }}
-            style={{ marginTop: 8, marginBottom: 40 }}
-          >
-            <Text style={{ color: colors.primary, fontWeight: "500", fontSize: 14 }}>+ Add</Text>
-          </Pressable>
         </ScrollView>
+
+        <TodoListModal
+          visible={todoListVisible}
+          todos={todos}
+          onClose={() => setTodoListVisible(false)}
+          onToggleTodo={handleToggleTodo}
+          onTapTodo={handleTapTodo}
+          onAddTodo={handleAddTodo}
+        />
 
         <TodoModal
           visible={todoModalVisible}
           todo={editingTodo}
           onSave={async (title, dueDate) => {
             if (editingTodo) {
-              const { updateTodo } = await import("../../lib/db/todos");
               await updateTodo(editingTodo.id, title, dueDate);
             } else if (note) {
-              const { createTodo } = await import("../../lib/db/todos");
               await createTodo(title, dueDate, note.id);
             }
             setTodoModalVisible(false);
             setEditingTodo(null);
-            if (note) {
-              const ts = await getTodosByNote(note.id);
-              setTodos(ts);
+            await refreshTodos();
+            if (returnToList) {
+              setReturnToList(false);
+              setTimeout(() => setTodoListVisible(true), 200);
             }
           }}
           onClose={() => {
             setTodoModalVisible(false);
             setEditingTodo(null);
+            if (returnToList) {
+              setReturnToList(false);
+              setTimeout(() => setTodoListVisible(true), 200);
+            }
           }}
         />
 

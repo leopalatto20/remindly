@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
-import { Alert, FlatList, Modal, SafeAreaView, Text, TextInput, View } from "react-native";
+import { Alert, FlatList, Modal, Text, TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Pressable, ScrollView } from "react-native-gesture-handler";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Trash2, ArrowLeft } from "lucide-react-native";

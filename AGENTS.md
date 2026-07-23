@@ -6,7 +6,7 @@ A simple note-taking multiplatform app designed as a personal diary/notebook.
 
 ### Issue tracker
 
-Local markdown - issues live as files under `.scratch/<feature>/` in this repo. See `docs/agents/issue-tracker.md`.
+Linear — issues live in the team's Linear workspace, accessed via the Linear MCP tools. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

@@ -78,7 +78,9 @@ A simple note-taking multiplatform app designed as a personal diary/notebook. Th
 ### Note Detail
 
 - Markdown editor
-- Todos list (sorted by due date)
+- Todo header badge (dimmed icon when no todos, `✓ 3/7` chip when todos exist) — opens todo list modal
+- Todo list modal (scrollable list with toggle/tap-to-edit/add, stacks over note)
+- Create/edit todo via modal (on top of list modal — stacked)
 - Delete note (trash icon with confirmation)
 - Auto-save
 
