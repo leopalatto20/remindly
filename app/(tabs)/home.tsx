@@ -7,6 +7,7 @@ import { getAllCategories, deleteCategory, createCategory } from "../../lib/db/c
 import type { Category } from "../../lib/db/categories";
 import { getUrgentTodos } from "../../lib/db/todos";
 import type { Todo } from "../../lib/db/todos";
+import { UrgentTodosList } from "../../components/todos/UrgentTodosList";
 import { ThemedScreen } from "../../components/ui/ThemedScreen";
 import { SwipeableDeleteAction } from "../../components/ui/SwipeableDeleteAction";
 import { useThemeColors } from "../../lib/theme/colors";
@@ -14,11 +15,16 @@ import { IconPicker } from "../../components/categories/IconPicker";
 import { ColorPicker } from "../../components/categories/ColorPicker";
 import { DynamicIcon } from "../../lib/icons/DynamicIcon";
 
+interface UrgentTodo extends Todo {
+  category_color: string;
+  category_icon: string;
+  note_title: string;
+}
+
 export default function HomeScreen() {
   const colors = useThemeColors();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [urgentTodos, setUrgentTodos] = useState<Todo[]>([]);
-  const [showAllUrgent, setShowAllUrgent] = useState(false);
+  const [urgentTodos, setUrgentTodos] = useState<UrgentTodo[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newCatName, setNewCatName] = useState("");
   const [newCatIcon, setNewCatIcon] = useState("Book");
@@ -104,85 +110,7 @@ export default function HomeScreen() {
         )}
         ListHeaderComponent={
           urgentTodos.length > 0 ? (
-            <View style={{ marginBottom: 16 }}>
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontWeight: "600",
-                  marginBottom: 8,
-                  color: colors.warning,
-                }}
-              >
-                Urgent Todos
-              </Text>
-              {urgentTodos.slice(0, 5).map((todo) => (
-                <Pressable
-                  key={todo.id}
-                  onPress={() => {
-                    const { toggleTodoCompleted } = require("../../lib/db/todos");
-                    toggleTodoCompleted(todo.id).then(() => loadData());
-                  }}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    padding: 12,
-                    backgroundColor: colors.warning + "20",
-                    borderRadius: 8,
-                    marginBottom: 4,
-                  }}
-                >
-                  <View
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: 4,
-                      backgroundColor: (todo as any).category_color || "#FF9500",
-                      marginRight: 8,
-                    }}
-                  />
-                  <Text style={{ fontSize: 14, flex: 1 }}>{todo.title}</Text>
-                </Pressable>
-              ))}
-              {urgentTodos.length > 5 && (
-                <Pressable
-                  onPress={() => setShowAllUrgent(!showAllUrgent)}
-                  style={{ padding: 8, alignItems: "center" }}
-                >
-                  <Text style={{ color: colors.primary, fontSize: 14 }}>
-                    {showAllUrgent ? "Show less" : `Show all (${urgentTodos.length})`}
-                  </Text>
-                </Pressable>
-              )}
-              {showAllUrgent &&
-                urgentTodos.slice(5).map((todo) => (
-                  <Pressable
-                    key={todo.id}
-                    onPress={() => {
-                      const { toggleTodoCompleted } = require("../../lib/db/todos");
-                      toggleTodoCompleted(todo.id).then(() => loadData());
-                    }}
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      padding: 12,
-                      backgroundColor: colors.warning + "20",
-                      borderRadius: 8,
-                      marginBottom: 4,
-                    }}
-                  >
-                    <View
-                      style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: 4,
-                        backgroundColor: (todo as any).category_color || "#FF9500",
-                        marginRight: 8,
-                      }}
-                    />
-                    <Text style={{ fontSize: 14, flex: 1 }}>{todo.title}</Text>
-                  </Pressable>
-                ))}
-            </View>
+            <UrgentTodosList todos={urgentTodos} onLoadData={loadData} />
           ) : null
         }
         ListFooterComponent={
