@@ -16,10 +16,9 @@ type UrgentTodo = Todo & {
 
 interface UrgentTodosListProps {
   todos: UrgentTodo[];
-  onToggle: () => void;
 }
 
-export function UrgentTodosList({ todos, onToggle }: UrgentTodosListProps) {
+export function UrgentTodosList({ todos }: UrgentTodosListProps) {
   const colors = useThemeColors();
   const [completedIds, setCompletedIds] = useState<Set<number>>(new Set());
   const [showAll, setShowAll] = useState(false);
@@ -31,7 +30,6 @@ export function UrgentTodosList({ todos, onToggle }: UrgentTodosListProps) {
   async function handleToggle(id: number) {
     await toggleTodoCompleted(id);
     setCompletedIds((prev) => new Set(prev).add(id));
-    onToggle();
   }
 
   if (visibleTodos.length === 0) return null;
