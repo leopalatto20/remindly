@@ -67,7 +67,7 @@ export default function SearchScreen() {
   return (
     <ThemedScreen>
       <View style={{ padding: 16, paddingTop: 60 }}>
-        <Text style={{ fontSize: 28, fontWeight: "bold", marginBottom: 16 }}>Search</Text>
+        <Text style={{ fontSize: 28, fontWeight: "bold", marginBottom: 16, color: colors.text }}>Search</Text>
         <TextInput
           placeholder="Search notes and todos..."
           value={query}
@@ -140,7 +140,7 @@ export default function SearchScreen() {
                   marginRight: 8,
                 }}
               />
-              <Text style={{ fontSize: 16 }}>{r.title}</Text>
+              <Text style={{ fontSize: 16, color: colors.text }}>{r.title}</Text>
             </Pressable>
           );
         }}

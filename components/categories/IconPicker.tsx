@@ -61,7 +61,7 @@ export function IconPicker({ selected, onSelect }: IconPickerProps) {
             <DynamicIcon
               name={item.name}
               size={22}
-              color={selected === item.name ? colors.primary : "#555"}
+              color={selected === item.name ? colors.primary : colors.textSecondary}
             />
           </Pressable>
         )}

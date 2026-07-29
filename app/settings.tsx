@@ -88,6 +88,7 @@ export default function SettingsScreen() {
             fontSize: 22,
             fontWeight: "bold",
             marginBottom: 16,
+            color: colors.text,
           }}
         >
           Settings
@@ -138,7 +139,7 @@ export default function SettingsScreen() {
                 />
               )}
             </View>
-            <Text style={{ fontSize: 16 }}>{opt.label}</Text>
+            <Text style={{ fontSize: 16, color: colors.text }}>{opt.label}</Text>
           </Pressable>
         ))}
         <Text
@@ -161,7 +162,7 @@ export default function SettingsScreen() {
             marginBottom: 8,
           }}
         >
-          <Text style={{ fontSize: 16 }}>Export</Text>
+          <Text style={{ fontSize: 16, color: colors.text }}>Export</Text>
         </Pressable>
         <Pressable
           onPress={handleImport}
@@ -172,7 +173,7 @@ export default function SettingsScreen() {
             marginBottom: 8,
           }}
         >
-          <Text style={{ fontSize: 16 }}>Import</Text>
+          <Text style={{ fontSize: 16, color: colors.text }}>Import</Text>
         </Pressable>
       </ScrollView>
       <Toast message={toast.message} visible={toast.visible} onHide={hideToast} />

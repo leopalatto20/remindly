@@ -25,12 +25,12 @@ const light: ThemeColors = {
 };
 
 const dark: ThemeColors = {
-  background: "#000000",
-  card: "#1C1C1E",
-  text: "#FFFFFF",
-  textSecondary: "#8E8E93",
-  border: "#38383A",
-  primary: "#0a4511",
+  background: "#121212",
+  card: "#1E1E1E",
+  text: "#E5E5E5",
+  textSecondary: "#9E9E9E",
+  border: "#2A2A2A",
+  primary: "#30D158",
   danger: "#FF453A",
   success: "#30D158",
   warning: "#FF9F0A",

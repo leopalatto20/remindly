@@ -73,7 +73,7 @@ export default function CategoryDetailScreen() {
   if (!category) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Loading...</Text>
+        <Text style={{ color: colors.text }}>Loading...</Text>
       </View>
     );
   }
@@ -116,7 +116,7 @@ export default function CategoryDetailScreen() {
             <DynamicIcon name={category.icon} size={24} color={category.color} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 22, fontWeight: "bold" }}>{category.name}</Text>
+            <Text style={{ fontSize: 22, fontWeight: "bold", color: colors.text }}>{category.name}</Text>
           </View>
           <Pressable
             onPress={() => {
@@ -164,7 +164,7 @@ export default function CategoryDetailScreen() {
                     marginBottom: 8,
                   }}
                 >
-                  <Text style={{ fontSize: 16, fontWeight: "600" }}>{item.title}</Text>
+                  <Text style={{ fontSize: 16, fontWeight: "600", color: colors.text }}>{item.title}</Text>
                   <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4 }}>
                     Created:{" "}
                     {new Date(item.created_at).toLocaleDateString("en-US", {
@@ -216,7 +216,7 @@ export default function CategoryDetailScreen() {
                   alignItems: "center",
                 }}
               >
-                <Text>Cancel</Text>
+                <Text style={{ color: colors.text }}>Cancel</Text>
               </Pressable>
               <Pressable
                 onPress={handleCreateNote}
@@ -274,7 +274,7 @@ export default function CategoryDetailScreen() {
               }}
             >
               <ScrollView>
-                <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 16 }}>
+                <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 16, color: colors.text }}>
                   Edit Category
                 </Text>
                 <TextInput
@@ -308,7 +308,7 @@ export default function CategoryDetailScreen() {
                       alignItems: "center",
                     }}
                   >
-                    <Text>Cancel</Text>
+                    <Text style={{ color: colors.text }}>Cancel</Text>
                   </Pressable>
                   <Pressable
                     onPress={async () => {

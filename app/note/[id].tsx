@@ -115,7 +115,7 @@ export default function NoteDetailScreen() {
   if (!note) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Loading...</Text>
+        <Text style={{ color: colors.text }}>Loading...</Text>
       </View>
     );
   }

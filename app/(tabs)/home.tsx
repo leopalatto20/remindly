@@ -68,7 +68,7 @@ export default function HomeScreen() {
           paddingTop: 60,
         }}
       >
-        <Text style={{ fontSize: 28, fontWeight: "bold" }}>Remindly</Text>
+        <Text style={{ fontSize: 28, fontWeight: "bold", color: colors.text }}>Remindly</Text>
         <Pressable onPress={() => router.push("/settings")}>
           <Settings size={24} color={colors.primary} />
         </Pressable>
@@ -104,7 +104,7 @@ export default function HomeScreen() {
               >
                 <DynamicIcon name={item.icon} size={20} color={item.color} />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: "600" }}>{item.name}</Text>
+              <Text style={{ fontSize: 16, fontWeight: "600", color: colors.text }}>{item.name}</Text>
             </Pressable>
           </SwipeableDeleteAction>
         )}
@@ -217,7 +217,7 @@ export default function HomeScreen() {
                     alignItems: "center",
                   }}
                 >
-                  <Text style={{ color: "#FFFFFF", fontWeight: "600" }}>Create</Text>
+            <Text style={{ color: "#FFFFFF", fontWeight: "600" }}>Create</Text>
                 </Pressable>
               </View>
             </ScrollView>

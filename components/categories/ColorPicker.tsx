@@ -3,6 +3,7 @@ import { LayoutChangeEvent, View } from "react-native";
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { hexToHsv, hsvToHex } from "../../lib/colors";
+import { useThemeColors } from "../../lib/theme/colors";
 
 const HUE_COLORS = ["#FF0000", "#FFFF00", "#00FF00", "#00FFFF", "#0000FF", "#FF00FF", "#FF0000"];
 
@@ -113,6 +114,7 @@ interface ColorPickerProps {
 }
 
 export function ColorPicker({ selected, onSelect }: ColorPickerProps) {
+  const colors = useThemeColors();
   const initial = hexToHsv(selected);
   const [h, setH] = useState(initial.h);
   const [s, setS] = useState(initial.s);
@@ -161,7 +163,7 @@ export function ColorPicker({ selected, onSelect }: ColorPickerProps) {
           backgroundColor: currentHex,
           marginBottom: 20,
           borderWidth: 1,
-          borderColor: "#E5E5EA",
+          borderColor: colors.border,
         }}
       />
 
