@@ -80,15 +80,9 @@ function validateBackupData(data: unknown): ValidationError | null {
 export async function exportData(): Promise<string> {
   const db = await getDb();
 
-  const categories = await db.getAllAsync<Category>(
-    "SELECT * FROM categories ORDER BY id",
-  );
-  const notes = await db.getAllAsync<Note>(
-    "SELECT * FROM notes ORDER BY id",
-  );
-  const todos = await db.getAllAsync<Todo>(
-    "SELECT * FROM todos ORDER BY id",
-  );
+  const categories = await db.getAllAsync<Category>("SELECT * FROM categories ORDER BY id");
+  const notes = await db.getAllAsync<Note>("SELECT * FROM notes ORDER BY id");
+  const todos = await db.getAllAsync<Todo>("SELECT * FROM todos ORDER BY id");
 
   const backup: BackupData = {
     exportedAt: new Date().toISOString(),
@@ -100,7 +94,9 @@ export async function exportData(): Promise<string> {
   return JSON.stringify(backup, null, 2);
 }
 
-export async function importData(jsonString: string): Promise<{ success: true } | { success: false; error: string }> {
+export async function importData(
+  jsonString: string,
+): Promise<{ success: true } | { success: false; error: string }> {
   let parsed: unknown;
   try {
     parsed = JSON.parse(jsonString);

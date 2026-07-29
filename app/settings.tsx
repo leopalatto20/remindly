@@ -56,26 +56,22 @@ export default function SettingsScreen() {
       const pickedFile = new File(asset.uri);
       const jsonString = await pickedFile.text();
 
-      Alert.alert(
-        "Import Data",
-        "This will replace all your data. Are you sure?",
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Import",
-            style: "destructive",
-            onPress: async () => {
-              const result = await importData(jsonString);
-              if (result.success) {
-                showToast("Data imported successfully");
-                setTimeout(() => router.replace("/"), 500);
-              } else {
-                Alert.alert("Import Failed", result.error);
-              }
-            },
+      Alert.alert("Import Data", "This will replace all your data. Are you sure?", [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Import",
+          style: "destructive",
+          onPress: async () => {
+            const result = await importData(jsonString);
+            if (result.success) {
+              showToast("Data imported successfully");
+              setTimeout(() => router.replace("/"), 500);
+            } else {
+              Alert.alert("Import Failed", result.error);
+            }
           },
-        ],
-      );
+        },
+      ]);
     } catch {
       showToast("Import failed");
     }
