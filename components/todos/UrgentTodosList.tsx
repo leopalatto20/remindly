@@ -23,16 +23,15 @@ export function UrgentTodosList({ todos }: UrgentTodosListProps) {
   const [completedIds, setCompletedIds] = useState<Set<number>>(new Set());
   const [showAll, setShowAll] = useState(false);
 
-  const visibleTodos = todos.filter((t) => !completedIds.has(t.id));
-  const displayedTodos = showAll ? visibleTodos : visibleTodos.slice(0, 5);
-  const hasMore = visibleTodos.length > 5;
+  const displayedTodos = showAll ? todos : todos.slice(0, 5);
+  const hasMore = todos.length > 5;
 
   async function handleToggle(id: number) {
     await toggleTodoCompleted(id);
     setCompletedIds((prev) => new Set(prev).add(id));
   }
 
-  if (visibleTodos.length === 0) return null;
+  if (todos.length === 0) return null;
 
   return (
     <View style={{ marginBottom: 16 }}>
@@ -109,7 +108,7 @@ export function UrgentTodosList({ todos }: UrgentTodosListProps) {
           style={{ padding: 8, alignItems: "center" }}
         >
           <Text style={{ color: colors.primary, fontSize: 14 }}>
-            {showAll ? "Show less" : `Show all (${visibleTodos.length})`}
+            {showAll ? "Show less" : `Show all (${todos.length})`}
           </Text>
         </Pressable>
       )}
