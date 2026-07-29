@@ -1,5 +1,5 @@
 import { Alert, Pressable, ScrollView, Text, View } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { shareAsync } from "expo-sharing";
@@ -11,6 +11,14 @@ import { ThemedScreen } from "../components/ui/ThemedScreen";
 import { useThemeColors } from "../lib/theme/colors";
 import { exportData, importData, backupFilename } from "../lib/db/backup";
 import { Toast } from "../components/ui/Toast";
+import {
+  getReminderOffset,
+  setReminderOffset,
+  areNotificationsEnabled,
+  requestNotificationPermissions,
+  rescheduleAllNotifications,
+  type ReminderOffset,
+} from "../lib/notifications";
 
 const themeOptions: { label: string; value: ThemeMode }[] = [
   { label: "Light", value: "light" },
@@ -26,6 +34,17 @@ export default function SettingsScreen() {
     message: "",
     visible: false,
   });
+  const [notificationEnabled, setNotificationEnabled] = useState(false);
+  const [reminderOffset, setReminderOffsetState] = useState<ReminderOffset>(0);
+
+  useEffect(() => {
+    (async () => {
+      const enabled = await areNotificationsEnabled();
+      setNotificationEnabled(enabled);
+      const offset = await getReminderOffset();
+      setReminderOffsetState(offset);
+    })();
+  }, []);
 
   function showToast(message: string) {
     setToast({ message, visible: true });
@@ -33,6 +52,89 @@ export default function SettingsScreen() {
 
   function hideToast() {
     setToast({ message: "", visible: false });
+  }
+
+  const reminderLabels: Record<ReminderOffset, string> = {
+    0: "Off",
+    1: "1 hour before",
+    2: "2 hours before",
+    3: "3 hours before",
+    4: "4 hours before",
+    5: "5 hours before",
+    6: "6 hours before",
+  };
+
+  async function handleReminderPress() {
+    const showActions = async () => {
+      Alert.alert("Remind me", "When should I remind you about todos?", [
+        {
+          text: "Off",
+          onPress: async () => {
+            await setReminderOffset(0);
+            setReminderOffsetState(0);
+            await rescheduleAllNotifications();
+          },
+        },
+        {
+          text: "1 hour before",
+          onPress: async () => {
+            await setReminderOffset(1);
+            setReminderOffsetState(1);
+            await rescheduleAllNotifications();
+          },
+        },
+        {
+          text: "2 hours before",
+          onPress: async () => {
+            await setReminderOffset(2);
+            setReminderOffsetState(2);
+            await rescheduleAllNotifications();
+          },
+        },
+        {
+          text: "3 hours before",
+          onPress: async () => {
+            await setReminderOffset(3);
+            setReminderOffsetState(3);
+            await rescheduleAllNotifications();
+          },
+        },
+        {
+          text: "4 hours before",
+          onPress: async () => {
+            await setReminderOffset(4);
+            setReminderOffsetState(4);
+            await rescheduleAllNotifications();
+          },
+        },
+        {
+          text: "5 hours before",
+          onPress: async () => {
+            await setReminderOffset(5);
+            setReminderOffsetState(5);
+            await rescheduleAllNotifications();
+          },
+        },
+        {
+          text: "6 hours before",
+          onPress: async () => {
+            await setReminderOffset(6);
+            setReminderOffsetState(6);
+            await rescheduleAllNotifications();
+          },
+        },
+        { text: "Cancel", style: "cancel" },
+      ]);
+    };
+
+    // If notifications are not yet enabled, request permission first
+    if (!notificationEnabled) {
+      const granted = await requestNotificationPermissions();
+      setNotificationEnabled(granted);
+      if (!granted) return;
+    }
+
+    await showActions();
   }
 
   async function handleExport() {
@@ -142,6 +244,38 @@ export default function SettingsScreen() {
             <Text style={{ fontSize: 16, color: colors.text }}>{opt.label}</Text>
           </Pressable>
         ))}
+        {notificationEnabled && (
+          <>
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: "600",
+                marginTop: 24,
+                marginBottom: 12,
+                color: colors.textSecondary,
+              }}
+            >
+              Notifications
+            </Text>
+            <Pressable
+              onPress={handleReminderPress}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: 14,
+                backgroundColor: colors.card,
+                borderRadius: 10,
+                marginBottom: 8,
+              }}
+            >
+              <Text style={{ fontSize: 16, color: colors.text }}>Remind me</Text>
+              <Text style={{ fontSize: 16, color: colors.textSecondary }}>
+                {reminderLabels[reminderOffset]}
+              </Text>
+            </Pressable>
+          </>
+        )}
         <Text
           style={{
             fontSize: 16,

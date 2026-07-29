@@ -44,6 +44,17 @@ A simple note-taking multiplatform app designed as a personal diary/notebook. Th
 - Completed flag
 - Belongs to a note (foreign key)
 - Sorted by closest due date first, completed todos faded to 50% opacity at bottom
+- Local scheduled reminder (auto-managed, see Reminders below)
+
+### Reminders
+
+- A local notification scheduled by the device based on a todo's due time
+- Configured globally (one setting for all todos), not per todo
+- Presets: Off (default), 1h, 2h, 3h, 4h, 5h, 6h before due time
+- Displays: todo title + time context (e.g., "Due in 1 hour")
+- Tapping opens the related note
+- Lifecycle: cancelled on todo complete/delete, rescheduled on due date change
+- Not scheduled if due time is already past
 
 ## Navigation Structure
 
@@ -94,6 +105,9 @@ A simple note-taking multiplatform app designed as a personal diary/notebook. Th
 
 - Theme toggle (light/dark/system)
 - System preference selected by default
+- Reminder timing (inline row, action sheet picker: Off / 1h–6h before)
+- Hidden if notification permissions are denied
+- OS permission prompt triggered on first non-off preset selection
 - Data section with Export and Import actions
 
 ## UI/UX Decisions

@@ -1,7 +1,8 @@
 import { useCallback, useState } from "react";
-import { Alert, Pressable, SafeAreaView, ScrollView, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Check, Pencil, Trash2, ArrowLeft } from "lucide-react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { getNote, updateNoteBody, deleteNote, type Note } from "../../lib/db/notes";
 import {
@@ -165,7 +166,13 @@ export default function NoteDetailScreen() {
             >
               {note.title}
             </Text>
-            <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 2 }}>
+            <Text
+              style={{
+                fontSize: 12,
+                color: colors.textSecondary,
+                marginTop: 2,
+              }}
+            >
               {new Date(note.created_at).toLocaleDateString("en-US", {
                 year: "numeric",
                 month: "short",
