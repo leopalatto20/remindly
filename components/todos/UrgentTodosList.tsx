@@ -1,71 +1,40 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
-import { useFocusEffect, router } from "expo-router";
-import type { Todo } from "../../lib/db/todos";
+import { router } from "expo-router";
+import { Check } from "lucide-react-native";
 import { toggleTodoCompleted } from "../../lib/db/todos";
+import type { Todo } from "../../lib/db/todos";
 import { useThemeColors } from "../../lib/theme/colors";
 import { formatRelativeDate } from "../../lib/utils/relativeDate";
 
-interface UrgentTodo extends Todo {
+type UrgentTodo = Todo & {
   category_color: string;
   category_icon: string;
   note_title: string;
-}
+};
 
-interface Props {
+interface UrgentTodosListProps {
   todos: UrgentTodo[];
-  onLoadData: () => void;
+  onToggle: () => void;
 }
 
-function Checkbox({ checked, color }: { checked: boolean; color: string }) {
-  return (
-    <View
-      style={{
-        width: 22,
-        height: 22,
-        borderRadius: 11,
-        borderWidth: 2,
-        borderColor: checked ? color : "#8E8E93",
-        backgroundColor: checked ? color : "transparent",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      {checked && (
-        <Text style={{ color: "#FFFFFF", fontSize: 12, fontWeight: "bold" }}>✓</Text>
-      )}
-    </View>
-  );
-}
-
-export function UrgentTodosList({ todos, onLoadData }: Props) {
+export function UrgentTodosList({ todos, onToggle }: UrgentTodosListProps) {
   const colors = useThemeColors();
   const [completedIds, setCompletedIds] = useState<Set<number>>(new Set());
   const [showAll, setShowAll] = useState(false);
 
-  // Reset completed IDs on page focus (data reload wipes completed todos from the list)
-  useFocusEffect(
-    useCallback(() => {
-      setCompletedIds(new Set());
-      setShowAll(false);
-    }, []),
-  );
+  const visibleTodos = todos.filter((t) => !completedIds.has(t.id));
+  const displayedTodos = showAll ? visibleTodos : visibleTodos.slice(0, 5);
+  const hasMore = visibleTodos.length > 5;
 
-  async function handleToggleComplete(id: number) {
+  async function handleToggle(id: number) {
     await toggleTodoCompleted(id);
-    setCompletedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
+    setCompletedIds((prev) => new Set(prev).add(id));
+    onToggle();
   }
 
-  const visible = showAll ? todos : todos.slice(0, 5);
+  if (visibleTodos.length === 0) return null;
 
   return (
     <View style={{ marginBottom: 16 }}>
@@ -79,11 +48,13 @@ export function UrgentTodosList({ todos, onLoadData }: Props) {
       >
         Urgent Todos
       </Text>
-      {visible.map((todo) => {
+
+      {displayedTodos.map((todo) => {
         const isCompleted = completedIds.has(todo.id);
         return (
-          <View
+          <Pressable
             key={todo.id}
+            onPress={() => router.push(`/note/${todo.note_id}`)}
             style={{
               flexDirection: "row",
               alignItems: "center",
@@ -95,58 +66,52 @@ export function UrgentTodosList({ todos, onLoadData }: Props) {
             }}
           >
             <Pressable
-              onPress={() => handleToggleComplete(todo.id)}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              style={{ padding: 4, marginRight: 6 }}
+              onPress={() => handleToggle(todo.id)}
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: 11,
+                borderWidth: 2,
+                borderColor: isCompleted ? colors.success : colors.textSecondary,
+                backgroundColor: isCompleted ? colors.success : "transparent",
+                alignItems: "center",
+                justifyContent: "center",
+                marginRight: 10,
+              }}
             >
-              <Checkbox checked={isCompleted} color={todo.category_color} />
+              {isCompleted && <Check size={14} color="#FFFFFF" />}
             </Pressable>
-            <Pressable
-              onPress={() => router.push(`/note/${todo.note_id}`)}
-              style={{ flex: 1, flexDirection: "row", alignItems: "center" }}
-            >
+
+            <View style={{ flex: 1 }}>
               <Text
                 style={{
                   fontSize: 14,
-                  flex: 1,
+                  fontWeight: "500",
+                  color: colors.text,
                   textDecorationLine: isCompleted ? "line-through" : "none",
                 }}
-                numberOfLines={1}
               >
                 {todo.title}
               </Text>
-              <View style={{ alignItems: "flex-end", marginLeft: 8 }}>
-                <Text
-                  style={{
-                    fontSize: 11,
-                    color: colors.textSecondary,
-                    marginBottom: 2,
-                  }}
-                  numberOfLines={1}
-                >
-                  {formatRelativeDate(todo.due_date)}
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 11,
-                    color: colors.textSecondary,
-                  }}
-                  numberOfLines={1}
-                >
-                  {todo.note_title}
-                </Text>
-              </View>
-            </Pressable>
-          </View>
+              <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 2 }}>
+                {todo.note_title}
+              </Text>
+            </View>
+
+            <Text style={{ fontSize: 12, color: colors.textSecondary, marginLeft: 8 }}>
+              {formatRelativeDate(todo.due_date)}
+            </Text>
+          </Pressable>
         );
       })}
-      {todos.length > 5 && (
+
+      {hasMore && (
         <Pressable
           onPress={() => setShowAll(!showAll)}
           style={{ padding: 8, alignItems: "center" }}
         >
           <Text style={{ color: colors.primary, fontSize: 14 }}>
-            {showAll ? "Show less" : `Show all (${todos.length})`}
+            {showAll ? "Show less" : `Show all (${visibleTodos.length})`}
           </Text>
         </Pressable>
       )}

@@ -110,7 +110,7 @@ export default function HomeScreen() {
         )}
         ListHeaderComponent={
           urgentTodos.length > 0 ? (
-            <UrgentTodosList todos={urgentTodos} onLoadData={loadData} />
+            <UrgentTodosList todos={urgentTodos} onToggle={loadData} />
           ) : null
         }
         ListFooterComponent={
