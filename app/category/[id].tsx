@@ -1,17 +1,12 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Alert, FlatList, Modal, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Pressable, ScrollView } from "react-native-gesture-handler";
-import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { Trash2, ArrowLeft } from "lucide-react-native";
 
-import {
-  getCategory,
-  updateCategory,
-  deleteCategory,
-  type Category,
-} from "../../lib/db/categories";
-import { getNotesByCategory, createNote, deleteNote, type Note } from "../../lib/db/notes";
+import { useCategory, useUpdateCategory, useDeleteCategory } from "../../lib/hooks/useCategories";
+import { useNotes, useCreateNote, useDeleteNote } from "../../lib/hooks/useNotes";
 import { IconPicker } from "../../components/categories/IconPicker";
 import { ColorPicker } from "../../components/categories/ColorPicker";
 import { DynamicIcon } from "../../lib/icons/DynamicIcon";
@@ -22,8 +17,15 @@ import { useThemeColors } from "../../lib/theme/colors";
 export default function CategoryDetailScreen() {
   const colors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [category, setCategory] = useState<Category | null>(null);
-  const [notes, setNotes] = useState<Note[]>([]);
+  const catId = Number(id);
+
+  const { data: category } = useCategory(catId);
+  const { data: notes = [] } = useNotes(catId);
+  const updateCategory = useUpdateCategory();
+  const deleteCategory = useDeleteCategory();
+  const createNote = useCreateNote();
+  const deleteNote = useDeleteNote();
+
   const [showCreate, setShowCreate] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [showEdit, setShowEdit] = useState(false);
@@ -31,41 +33,27 @@ export default function CategoryDetailScreen() {
   const [editIcon, setEditIcon] = useState("Book");
   const [editColor, setEditColor] = useState("#007AFF");
 
-  useFocusEffect(
-    useCallback(() => {
-      if (id) {
-        loadData(Number(id));
-      }
-    }, [id]),
-  );
-
-  async function loadData(catId: number) {
-    const cat = await getCategory(catId);
-    setCategory(cat);
-    if (cat) {
-      const ns = await getNotesByCategory(cat.id);
-      setNotes(ns);
-    }
-  }
-
-  async function handleCreateNote() {
+  function handleCreateNote() {
     if (!newTitle.trim() || !category) return;
-    const noteId = await createNote(newTitle.trim(), category.id);
-    setNewTitle("");
-    setShowCreate(false);
-    router.push(`/note/${noteId}`);
+    createNote.mutate(
+      { title: newTitle.trim(), categoryId: category.id },
+      {
+        onSuccess: (noteId) => {
+          setNewTitle("");
+          setShowCreate(false);
+          router.push(`/note/${noteId}`);
+        },
+      },
+    );
   }
 
-  function handleDeleteNote(item: Note) {
+  function handleDeleteNote(item: { id: number; title: string }) {
     Alert.alert("Delete Note", `Delete "${item.title}"?`, [
       { text: "Cancel", style: "cancel" },
       {
         text: "Delete",
         style: "destructive",
-        onPress: async () => {
-          await deleteNote(item.id);
-          if (category) loadData(category.id);
-        },
+        onPress: () => deleteNote.mutate(item.id),
       },
     ]);
   }
@@ -125,9 +113,10 @@ export default function CategoryDetailScreen() {
                 {
                   text: "Delete",
                   style: "destructive",
-                  onPress: async () => {
-                    await deleteCategory(category.id);
-                    router.back();
+                  onPress: () => {
+                    deleteCategory.mutate(category.id, {
+                      onSuccess: () => router.back(),
+                    });
                   },
                 },
               ]);
@@ -311,11 +300,12 @@ export default function CategoryDetailScreen() {
                     <Text style={{ color: colors.text }}>Cancel</Text>
                   </Pressable>
                   <Pressable
-                    onPress={async () => {
+                    onPress={() => {
                       if (!editName.trim() || !category) return;
-                      await updateCategory(category.id, editName.trim(), editIcon, editColor);
-                      setShowEdit(false);
-                      loadData(category.id);
+                      updateCategory.mutate(
+                        { id: category.id, name: editName.trim(), icon: editIcon, color: editColor },
+                        { onSuccess: () => setShowEdit(false) },
+                      );
                     }}
                     style={{
                       padding: 12,

@@ -1,12 +1,8 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Alert, FlatList, Modal, Text, TextInput, View } from "react-native";
 import { Pressable, ScrollView } from "react-native-gesture-handler";
-import { router, useFocusEffect } from "expo-router";
+import { router } from "expo-router";
 import { Settings } from "lucide-react-native";
-import { getAllCategories, deleteCategory, createCategory } from "../../lib/db/categories";
-import type { Category } from "../../lib/db/categories";
-import { getUrgentTodos } from "../../lib/db/todos";
-import type { Todo } from "../../lib/db/todos";
 import { UrgentTodosList } from "../../components/todos/UrgentTodosList";
 import { ThemedScreen } from "../../components/ui/ThemedScreen";
 import { SwipeableDeleteAction } from "../../components/ui/SwipeableDeleteAction";
@@ -14,45 +10,30 @@ import { useThemeColors } from "../../lib/theme/colors";
 import { IconPicker } from "../../components/categories/IconPicker";
 import { ColorPicker } from "../../components/categories/ColorPicker";
 import { DynamicIcon } from "../../lib/icons/DynamicIcon";
-
-interface UrgentTodo extends Todo {
-  category_color: string;
-  category_icon: string;
-  note_title: string;
-}
+import { useCategories, useCreateCategory, useDeleteCategory } from "../../lib/hooks/useCategories";
+import { useUrgentTodos } from "../../lib/hooks/useUrgentTodos";
+import { useToggleTodo } from "../../lib/hooks/useTodos";
 
 export default function HomeScreen() {
   const colors = useThemeColors();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [urgentTodos, setUrgentTodos] = useState<UrgentTodo[]>([]);
+  const { data: categories = [] } = useCategories();
+  const { data: urgentTodos = [] } = useUrgentTodos();
+  const createCategory = useCreateCategory();
+  const deleteCategory = useDeleteCategory();
+  const toggleTodo = useToggleTodo();
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newCatName, setNewCatName] = useState("");
   const [newCatIcon, setNewCatIcon] = useState("Book");
   const [newCatColor, setNewCatColor] = useState("#007AFF");
 
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, []),
-  );
-
-  async function loadData() {
-    const cats = await getAllCategories();
-    setCategories(cats);
-    const todos = await getUrgentTodos();
-    setUrgentTodos(todos);
-  }
-
-  function handleDeleteCategory(cat: Category) {
+  function handleDeleteCategory(cat: { id: number; name: string }) {
     Alert.alert("Delete Category", `Delete "${cat.name}" and all its notes?`, [
       { text: "Cancel", style: "cancel" },
       {
         text: "Delete",
         style: "destructive",
-        onPress: async () => {
-          await deleteCategory(cat.id);
-          loadData();
-        },
+        onPress: () => deleteCategory.mutate(cat.id),
       },
     ]);
   }
@@ -110,7 +91,10 @@ export default function HomeScreen() {
         )}
         ListHeaderComponent={
           urgentTodos.length > 0 ? (
-            <UrgentTodosList todos={urgentTodos} />
+            <UrgentTodosList
+              todos={urgentTodos}
+              onToggleTodo={(id) => toggleTodo.mutate(id)}
+            />
           ) : null
         }
         ListFooterComponent={
@@ -202,12 +186,17 @@ export default function HomeScreen() {
                   <Text style={{ color: colors.text }}>Cancel</Text>
                 </Pressable>
                 <Pressable
-                  onPress={async () => {
+                  onPress={() => {
                     if (!newCatName.trim()) return;
-                    const catId = await createCategory(newCatName.trim(), newCatIcon, newCatColor);
-                    setShowCreateModal(false);
-                    setNewCatName("");
-                    loadData();
+                    createCategory.mutate(
+                      { name: newCatName.trim(), icon: newCatIcon, color: newCatColor },
+                      {
+                        onSuccess: () => {
+                          setShowCreateModal(false);
+                          setNewCatName("");
+                        },
+                      },
+                    );
                   }}
                   style={{
                     padding: 12,

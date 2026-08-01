@@ -3,22 +3,16 @@ import { Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import { router } from "expo-router";
 import { Check } from "lucide-react-native";
-import { toggleTodoCompleted } from "../../lib/db/todos";
-import type { Todo } from "../../lib/db/todos";
+import type { UrgentTodo } from "../../lib/hooks/useUrgentTodos";
 import { useThemeColors } from "../../lib/theme/colors";
 import { formatRelativeDate } from "../../lib/utils/relativeDate";
 
-type UrgentTodo = Todo & {
-  category_color: string;
-  category_icon: string;
-  note_title: string;
-};
-
 interface UrgentTodosListProps {
   todos: UrgentTodo[];
+  onToggleTodo: (id: number) => void;
 }
 
-export function UrgentTodosList({ todos }: UrgentTodosListProps) {
+export function UrgentTodosList({ todos, onToggleTodo }: UrgentTodosListProps) {
   const colors = useThemeColors();
   const [completedIds, setCompletedIds] = useState<Set<number>>(new Set());
   const [showAll, setShowAll] = useState(false);
@@ -26,8 +20,8 @@ export function UrgentTodosList({ todos }: UrgentTodosListProps) {
   const displayedTodos = showAll ? todos : todos.slice(0, 5);
   const hasMore = todos.length > 5;
 
-  async function handleToggle(id: number) {
-    await toggleTodoCompleted(id);
+  function handleToggle(id: number) {
+    onToggleTodo(id);
     setCompletedIds((prev) => new Set(prev).add(id));
   }
 

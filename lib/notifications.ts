@@ -1,6 +1,7 @@
 import * as Notifications from "expo-notifications";
 import { AndroidImportance, SchedulableTriggerInputTypes } from "expo-notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getDb } from "./db/schema";
 
 const REMINDER_SETTING_KEY = "remindly-reminder-offset";
 const NOTIFICATION_MAP_KEY = "remindly-notification-map";
@@ -108,7 +109,6 @@ export async function rescheduleAllNotifications(): Promise<void> {
   // Cancel existing notifications, then reschedule from DB
   await cancelAllNotifications();
 
-  const { getDb } = await import("./db/schema");
   const db = await getDb();
   const todos = await db.getAllAsync<{
     id: number;

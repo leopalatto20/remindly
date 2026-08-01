@@ -1,5 +1,4 @@
 import { getDb } from "./schema";
-import { scheduleTodoNotification, cancelTodoNotification } from "../notifications";
 
 export interface Todo {
   id: number;
@@ -48,10 +47,7 @@ export async function createTodo(title: string, dueDate: string, noteId: number)
     dueDate,
     noteId,
   );
-  const todoId = result.lastInsertRowId;
-  // Schedule notification for the new todo
-  scheduleTodoNotification(todoId, title, dueDate, noteId);
-  return todoId;
+  return result.lastInsertRowId;
 }
 
 export async function updateTodo(id: number, title: string, dueDate: string): Promise<void> {
@@ -62,38 +58,17 @@ export async function updateTodo(id: number, title: string, dueDate: string): Pr
     dueDate,
     id,
   );
-  // Reschedule notification for the updated todo
-  const todo = await getTodo(id);
-  if (todo) {
-    scheduleTodoNotification(todo.id, todo.title, todo.due_date, todo.note_id);
-  }
 }
 
 export async function toggleTodoCompleted(id: number): Promise<void> {
   const db = await getDb();
-  const todo = await getTodo(id);
-  const wasCompleted = todo ? todo.completed === 1 : false;
-
   await db.runAsync(
     "UPDATE todos SET completed = CASE WHEN completed = 0 THEN 1 ELSE 0 END, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
     id,
   );
-
-  if (!wasCompleted) {
-    // Was incomplete, now completed → cancel notification
-    await cancelTodoNotification(id);
-  } else {
-    // Was completed, now incomplete → reschedule notification
-    const updated = await getTodo(id);
-    if (updated) {
-      scheduleTodoNotification(updated.id, updated.title, updated.due_date, updated.note_id);
-    }
-  }
 }
 
 export async function deleteTodo(id: number): Promise<void> {
   const db = await getDb();
   await db.runAsync("DELETE FROM todos WHERE id = ?", id);
-  // Cancel notification for the deleted todo
-  await cancelTodoNotification(id);
 }

@@ -1,17 +1,12 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Check, Pencil, Trash2, ArrowLeft } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { getNote, updateNoteBody, deleteNote, type Note } from "../../lib/db/notes";
-import {
-  getTodosByNote,
-  createTodo,
-  updateTodo,
-  toggleTodoCompleted,
-  type Todo,
-} from "../../lib/db/todos";
+import { useNote, useUpdateNoteBody, useDeleteNote } from "../../lib/hooks/useNotes";
+import { useTodos, useCreateTodo, useUpdateTodo, useToggleTodo } from "../../lib/hooks/useTodos";
+import type { Todo } from "../../lib/db/todos";
 import { TodoModal } from "../../components/todos/TodoModal";
 import { TodoListModal } from "../../components/todos/TodoListModal";
 import { TodoHeaderBadge } from "../../components/todos/TodoHeaderBadge";
@@ -24,10 +19,17 @@ import { useThemeColors } from "../../lib/theme/colors";
 export default function NoteDetailScreen() {
   const colors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const noteId = Number(id);
 
-  const [note, setNote] = useState<Note | null>(null);
+  const { data: note } = useNote(noteId);
+  const { data: todos = [] } = useTodos(noteId);
+  const updateNoteBody = useUpdateNoteBody();
+  const deleteNote = useDeleteNote();
+  const createTodo = useCreateTodo();
+  const updateTodo = useUpdateTodo();
+  const toggleTodo = useToggleTodo();
+
   const [body, setBody] = useState("");
-  const [todos, setTodos] = useState<Todo[]>([]);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -37,66 +39,57 @@ export default function NoteDetailScreen() {
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [returnToList, setReturnToList] = useState(false);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (id) loadNote(Number(id));
-    }, [id]),
-  );
+  // Track unsaved body changes for save-on-unmount
+  const bodyRef = useRef(body);
+  bodyRef.current = body;
 
+  // Sync body state when note loads
+  useEffect(() => {
+    if (note) {
+      setBody(note.body);
+      setIsEditing(false);
+    }
+  }, [note?.id]);
+
+  // Save on unmount as safety net
   useFocusEffect(
     useCallback(() => {
       return () => {
-        if (note && body !== undefined) {
-          updateNoteBody(note.id, body);
+        if (note && bodyRef.current !== note.body) {
+          updateNoteBody.mutate({ id: note.id, body: bodyRef.current });
         }
       };
-    }, [note?.id, body]),
+    }, [note?.id]),
   );
 
-  async function loadNote(noteId: number) {
-    const n = await getNote(noteId);
-    setNote(n);
-    if (n) {
-      setBody(n.body);
-      const ts = await getTodosByNote(noteId);
-      setTodos(ts);
-    }
-    setIsEditing(false);
-  }
-
-  async function refreshTodos() {
-    if (note) {
-      const ts = await getTodosByNote(note.id);
-      setTodos(ts);
-    }
-  }
-
-  async function handleSave() {
+  function handleSave() {
     if (!note) return;
-    await updateNoteBody(note.id, body);
-    setIsEditing(false);
-    setToastMessage("Saved");
-    setToastVisible(true);
+    updateNoteBody.mutate(
+      { id: note.id, body },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          setToastMessage("Saved");
+          setToastVisible(true);
+        },
+      },
+    );
   }
 
-  async function handleDelete() {
+  function handleDelete() {
     if (!note) return;
     Alert.alert("Delete Note", `Delete "${note.title}"?`, [
       { text: "Cancel", style: "cancel" },
       {
         text: "Delete",
         style: "destructive",
-        onPress: async () => {
-          await deleteNote(note.id);
-          router.back();
+        onPress: () => {
+          deleteNote.mutate(note.id, {
+            onSuccess: () => router.back(),
+          });
         },
       },
     ]);
-  }
-
-  async function handleToggleTodo(todoId: number) {
-    await toggleTodoCompleted(todoId);
-    await refreshTodos();
   }
 
   function handleTapTodo(todo: Todo) {
@@ -210,7 +203,7 @@ export default function NoteDetailScreen() {
           visible={todoListVisible}
           todos={todos}
           onClose={() => setTodoListVisible(false)}
-          onToggleTodo={handleToggleTodo}
+          onToggleTodo={(todoId) => toggleTodo.mutate(todoId)}
           onTapTodo={handleTapTodo}
           onAddTodo={handleAddTodo}
         />
@@ -218,15 +211,14 @@ export default function NoteDetailScreen() {
         <TodoModal
           visible={todoModalVisible}
           todo={editingTodo}
-          onSave={async (title, dueDate) => {
-            if (editingTodo) {
-              await updateTodo(editingTodo.id, title, dueDate);
-            } else if (note) {
-              await createTodo(title, dueDate, note.id);
-            }
+          onSave={(title, dueDate) => {
+            const mutation = editingTodo
+              ? updateTodo.mutate({ id: editingTodo.id, title, dueDate })
+              : createTodo.mutate({ title, dueDate, noteId: note.id });
+
+            // Both mutations auto-invalidate via onSuccess
             setTodoModalVisible(false);
             setEditingTodo(null);
-            await refreshTodos();
             if (returnToList) {
               setReturnToList(false);
               setTimeout(() => setTodoListVisible(true), 200);

@@ -1,33 +1,15 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { FlatList, Pressable, Text, TextInput, View } from "react-native";
-import { router, useFocusEffect } from "expo-router";
-import { search, type SearchResult } from "../../lib/db/search";
+import { router } from "expo-router";
+import { useSearch } from "../../lib/hooks/useSearch";
+import type { SearchResult } from "../../lib/db/search";
 import { ThemedScreen } from "../../components/ui/ThemedScreen";
 import { useThemeColors } from "../../lib/theme/colors";
 
 export default function SearchScreen() {
   const colors = useThemeColors();
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResult[]>([]);
-
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        setQuery("");
-        setResults([]);
-      };
-    }, []),
-  );
-
-  async function handleSearch(text: string) {
-    setQuery(text);
-    if (text.trim()) {
-      const res = await search(text);
-      setResults(res);
-    } else {
-      setResults([]);
-    }
-  }
+  const { data: results = [] } = useSearch(query);
 
   const grouped = results.reduce<{
     notes: Record<string, SearchResult[]>;
@@ -71,7 +53,7 @@ export default function SearchScreen() {
         <TextInput
           placeholder="Search notes and todos..."
           value={query}
-          onChangeText={handleSearch}
+          onChangeText={setQuery}
           style={{
             padding: 12,
             backgroundColor: colors.card,

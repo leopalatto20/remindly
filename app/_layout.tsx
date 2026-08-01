@@ -1,8 +1,9 @@
 import "../global.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import * as Notifications from "expo-notifications";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "../lib/theme";
 import {
   configureNotificationHandler,
@@ -31,8 +32,11 @@ export default function RootLayout() {
     return () => subscription.remove();
   }, []);
 
+  const [queryClient] = useState(() => new QueryClient());
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -44,6 +48,7 @@ export default function RootLayout() {
           />
         </Stack>
       </ThemeProvider>
+      </QueryClientProvider>
     </GestureHandlerRootView>
   );
 }
