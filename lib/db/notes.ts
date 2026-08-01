@@ -32,15 +32,6 @@ export async function createNote(title: string, categoryId: number): Promise<num
   return result.lastInsertRowId;
 }
 
-export async function updateNoteBody(id: number, body: string): Promise<void> {
-  const db = await getDb();
-  await db.runAsync(
-    "UPDATE notes SET body = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-    body,
-    id,
-  );
-}
-
 export async function updateNote(id: number, title: string, body: string): Promise<void> {
   const db = await getDb();
   await db.runAsync(
