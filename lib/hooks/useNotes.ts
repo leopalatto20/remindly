@@ -3,7 +3,7 @@ import {
   getNote,
   getNotesByCategory,
   createNote as dbCreateNote,
-  updateNoteBody as dbUpdateNoteBody,
+  updateNote as dbUpdateNote,
   deleteNote as dbDeleteNote,
   type Note,
 } from "../db/notes";
@@ -35,12 +35,14 @@ export function useCreateNote() {
   });
 }
 
-export function useUpdateNoteBody() {
+export function useUpdateNote() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, body }: { id: number; body: string }) => dbUpdateNoteBody(id, body),
+    mutationFn: ({ id, title, body }: { id: number; title: string; body: string }) =>
+      dbUpdateNote(id, title, body),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["notes", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
     },
   });
 }

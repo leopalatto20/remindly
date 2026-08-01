@@ -4,7 +4,7 @@ import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Check, Pencil, Trash2, ArrowLeft } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useNote, useUpdateNoteBody, useDeleteNote } from "../../lib/hooks/useNotes";
+import { useNote, useUpdateNote, useDeleteNote } from "../../lib/hooks/useNotes";
 import { useTodos, useCreateTodo, useUpdateTodo, useToggleTodo } from "../../lib/hooks/useTodos";
 import type { Todo } from "../../lib/db/todos";
 import { TodoModal } from "../../components/todos/TodoModal";
@@ -23,31 +23,37 @@ export default function NoteDetailScreen() {
 
   const { data: note } = useNote(noteId);
   const { data: todos = [] } = useTodos(noteId);
-  const updateNoteBody = useUpdateNoteBody();
+  const updateNote = useUpdateNote();
   const deleteNote = useDeleteNote();
   const createTodo = useCreateTodo();
   const updateTodo = useUpdateTodo();
   const toggleTodo = useToggleTodo();
 
+  const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
 
   const [todoListVisible, setTodoListVisible] = useState(false);
   const [todoModalVisible, setTodoModalVisible] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [returnToList, setReturnToList] = useState(false);
 
-  // Track unsaved body changes for save-on-unmount
+  // Track unsaved changes for save-on-unmount
+  const titleRef = useRef(title);
+  titleRef.current = title;
   const bodyRef = useRef(body);
   bodyRef.current = body;
 
-  // Sync body state when note loads
+  // Sync state when note loads
   useEffect(() => {
     if (note) {
+      setTitle(note.title);
       setBody(note.body);
       setIsEditing(false);
+      setIsEditingTitle(false);
     }
   }, [note?.id]);
 
@@ -55,8 +61,8 @@ export default function NoteDetailScreen() {
   useFocusEffect(
     useCallback(() => {
       return () => {
-        if (note && bodyRef.current !== note.body) {
-          updateNoteBody.mutate({ id: note.id, body: bodyRef.current });
+        if (note && (titleRef.current !== note.title || bodyRef.current !== note.body)) {
+          updateNote.mutate({ id: note.id, title: titleRef.current, body: bodyRef.current });
         }
       };
     }, [note?.id]),
@@ -64,8 +70,8 @@ export default function NoteDetailScreen() {
 
   function handleSave() {
     if (!note) return;
-    updateNoteBody.mutate(
-      { id: note.id, body },
+    updateNote.mutate(
+      { id: note.id, title, body },
       {
         onSuccess: () => {
           setIsEditing(false);
@@ -74,6 +80,19 @@ export default function NoteDetailScreen() {
         },
       },
     );
+  }
+
+  function handleTitleBlur() {
+    if (!note) return;
+    setIsEditingTitle(false);
+    const trimmed = title.trim();
+    if (trimmed === "") {
+      setTitle(note.title);
+      return;
+    }
+    if (trimmed !== note.title) {
+      updateNote.mutate({ id: note.id, title: trimmed, body });
+    }
   }
 
   function handleDelete() {
@@ -148,17 +167,36 @@ export default function NoteDetailScreen() {
 
         <ScrollView style={{ flex: 1, paddingHorizontal: 16 }}>
           <View style={{ marginTop: 12, marginBottom: 16 }}>
-            <Text
-              style={{
-                fontSize: 28,
-                fontWeight: "700",
-                letterSpacing: -0.3,
-                lineHeight: 34,
-                color: colors.text,
-              }}
-            >
-              {note.title}
-            </Text>
+            {isEditingTitle ? (
+              <TextInput
+                value={title}
+                onChangeText={setTitle}
+                onBlur={handleTitleBlur}
+                autoFocus
+                style={{
+                  fontSize: 28,
+                  fontWeight: "700",
+                  letterSpacing: -0.3,
+                  lineHeight: 34,
+                  color: colors.text,
+                  padding: 0,
+                }}
+              />
+            ) : (
+              <Pressable onPress={() => setIsEditingTitle(true)}>
+                <Text
+                  style={{
+                    fontSize: 28,
+                    fontWeight: "700",
+                    letterSpacing: -0.3,
+                    lineHeight: 34,
+                    color: colors.text,
+                  }}
+                >
+                  {title || note.title}
+                </Text>
+              </Pressable>
+            )}
             <Text
               style={{
                 fontSize: 12,
