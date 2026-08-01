@@ -35,7 +35,6 @@ A simple note-taking multiplatform app designed as a personal diary/notebook. Th
 - Creation date (auto-set, displayed in friendly format e.g. "Jan 15, 2026")
 - Updated at timestamp (backend only, not displayed in UI)
 - Category (required foreign key)
-- Subtle toast feedback on save
 
 ### Todos
 

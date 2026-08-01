@@ -26,55 +26,53 @@ A local-first, multiplatform note-taking app built with Expo where every note be
 9. As a user, I want to create a new note by entering a title, so that I can quickly start writing
 10. As a user, I want to be immediately taken to the note editor after creating a note, so that I can start writing right away
 11. As a user, I want to write notes in markdown, so that I can format text flexibly
-12. As a user, I want my notes to auto-save as I type (1 second debounce), so that I never lose my work
-13. As a user, I want my notes to also save when I navigate back, so that I don't have to worry about losing unsaved changes
-14. As a user, I want to see a subtle toast notification when my note saves, so that I know my work is safe
-15. As a user, I want to see a list of all notes within a category, so that I can find and manage my notes for that subject
-16. As a user, I want to delete a note with a confirmation dialog, so that I don't accidentally lose important notes
-17. As a user, I want each note to track when it was created and last updated, so that I can see the history of my work
+12. As a user, I want my notes to save when I navigate back, so that I don't have to worry about losing unsaved changes
+13. As a user, I want to see a list of all notes within a category, so that I can find and manage my notes for that subject
+14. As a user, I want to delete a note with a confirmation dialog, so that I don't accidentally lose important notes
+15. As a user, I want each note to track when it was created and last updated, so that I can see the history of my work
 
 ### Todos
 
-18. As a user, I want to add todos to any note, so that I can track action items related to that note
-19. As a user, I want to set a due date and time for each todo, so that I know when things need to be done
-20. As a user, I want to mark todos as completed, so that I can track my progress
-21. As a user, I want completed todos to appear faded (50% opacity) at the bottom of the list, so that I can focus on what's still pending
-22. As a user, I want todos sorted by closest due date first, so that I see the most urgent items at the top
-23. As a user, I want to create and edit todos via a modal, so that I have enough space for the date/time picker
-24. As a user, I want to tap on a todo to edit it in a modal, so that I can quickly update details
-25. As a user, I want to see my 5 most urgent todos (due this week) on the home screen, so that I know what's coming up
-26. As a user, I want to expand the urgent todos section on the home screen to see all todos due this week, so that I have full visibility
-27. As a user, I want the urgent todos section to appear above the categories list, so that it's the first thing I see
+16. As a user, I want to add todos to any note, so that I can track action items related to that note
+17. As a user, I want to set a due date and time for each todo, so that I know when things need to be done
+18. As a user, I want to mark todos as completed, so that I can track my progress
+19. As a user, I want completed todos to appear faded (50% opacity) at the bottom of the list, so that I can focus on what's still pending
+20. As a user, I want todos sorted by closest due date first, so that I see the most urgent items at the top
+21. As a user, I want to create and edit todos via a modal, so that I have enough space for the date/time picker
+22. As a user, I want to tap on a todo to edit it in a modal, so that I can quickly update details
+23. As a user, I want to see my 5 most urgent todos (due this week) on the home screen, so that I know what's coming up
+24. As a user, I want to expand the urgent todos section on the home screen to see all todos due this week, so that I have full visibility
+25. As a user, I want the urgent todos section to appear above the categories list, so that it's the first thing I see
 
 ### Navigation
 
-28. As a user, I want a bottom tab bar with Home and Search tabs, so that I can quickly switch between main functions
-29. As a user, I want to tap a category on the home screen to see its notes, so that I can drill down to what I need
-30. As a user, I want to tap a note to open its editor, so that I can read and modify it
-31. As a user, I want to navigate back from any screen to return to where I was, so that I always know where I am
-32. As a user, I want a settings gear icon in the home screen top bar, so that I can access app settings
+26. As a user, I want a bottom tab bar with Home and Search tabs, so that I can quickly switch between main functions
+27. As a user, I want to tap a category on the home screen to see its notes, so that I can drill down to what I need
+28. As a user, I want to tap a note to open its editor, so that I can read and modify it
+29. As a user, I want to navigate back from any screen to return to where I was, so that I always know where I am
+30. As a user, I want a settings gear icon in the home screen top bar, so that I can access app settings
 
 ### Search
 
-33. As a user, I want to search across all note titles, note bodies, and todo titles, so that I can find anything I've written
-34. As a user, I want search results to appear as I type, so that I get instant feedback
-35. As a user, I want search results grouped by type (Notes/Todos) and then by category, so that I can easily browse matches
-36. As a user, I want each search result to show only the title with color-coded category identification, so that results are clean and scannable
-37. As a user, I want to see "No results for '{query}'" when nothing matches, so that I know my search was thorough
-38. As a user, I want the search tab to start empty (no recent searches), so that I have a clean slate each time
+31. As a user, I want to search across all note titles, note bodies, and todo titles, so that I can find anything I've written
+32. As a user, I want search results to appear as I type, so that I get instant feedback
+33. As a user, I want search results grouped by type (Notes/Todos) and then by category, so that I can easily browse matches
+34. As a user, I want each search result to show only the title with color-coded category identification, so that results are clean and scannable
+35. As a user, I want to see "No results for '{query}'" when nothing matches, so that I know my search was thorough
+36. As a user, I want the search tab to start empty (no recent searches), so that I have a clean slate each time
 
 ### Settings
 
-39. As a user, I want to toggle between light, dark, and system theme, so that I can use the app comfortably in any lighting
-40. As a user, I want the app to default to my system's theme preference, so that it works naturally with my device
-41. As a user, I want to override the system theme in settings, so that I have control when I want it
+37. As a user, I want to toggle between light, dark, and system theme, so that I can use the app comfortably in any lighting
+38. As a user, I want the app to default to my system's theme preference, so that it works naturally with my device
+39. As a user, I want to override the system theme in settings, so that I have control when I want it
 
 ### Data Integrity
 
-42. As a user, I want all my data stored locally on my device, so that I have full privacy and offline access
-43. As a user, I want notes to track `updated_at` timestamps, so that data integrity is maintained
-44. As a user, I want deleting a category to cascade and delete all its notes, so that I don't have orphaned data
-45. As a user, I want deleting a note to cascade and delete all its todos, so that I don't have orphaned data
+40. As a user, I want all my data stored locally on my device, so that I have full privacy and offline access
+41. As a user, I want notes to track `updated_at` timestamps, so that data integrity is maintained
+42. As a user, I want deleting a category to cascade and delete all its notes, so that I don't have orphaned data
+43. As a user, I want deleting a note to cascade and delete all its todos, so that I don't have orphaned data
 
 ## Implementation Decisions
 
@@ -94,11 +92,10 @@ A local-first, multiplatform note-taking app built with Expo where every note be
 - FTS5 virtual tables for search: `notes_fts` (title, body), `todos_fts` (title)
 - Indexes on foreign keys and due_date for query performance
 
-### Auto-Save Behavior
+### Save Behavior
 
-- 1 second debounce on text input changes
-- Additional save trigger on navigation back
-- Subtle toast notification on successful save
+- Manual save via check icon (primary action)
+- Save trigger on navigation back as safety net
 - `updated_at` timestamp updated on every save
 
 ### Search Implementation
@@ -138,7 +135,7 @@ A local-first, multiplatform note-taking app built with Expo where every note be
 ### Key Test Areas
 
 - **Database operations**: CRUD for categories, notes, todos; cascade deletes; FTS search
-- **Auto-save**: Debounce timing, save on navigation, toast feedback
+- **Save behavior**: Save on check icon, save on navigation back
 - **Search**: FTS queries, result grouping, empty states
 - **Navigation**: Tab switching, stack navigation, modal presentation
 - **Theme**: Light/dark/system detection, persistence

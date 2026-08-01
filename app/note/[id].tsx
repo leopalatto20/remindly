@@ -12,7 +12,6 @@ import { TodoListModal } from "../../components/todos/TodoListModal";
 import { TodoHeaderBadge } from "../../components/todos/TodoHeaderBadge";
 import { MarkdownPreview } from "../../components/notes/MarkdownPreview";
 
-import { Toast } from "../../components/ui/Toast";
 import { ThemedScreen } from "../../components/ui/ThemedScreen";
 import { useThemeColors } from "../../lib/theme/colors";
 
@@ -31,8 +30,6 @@ export default function NoteDetailScreen() {
 
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [toastVisible, setToastVisible] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
 
@@ -75,8 +72,6 @@ export default function NoteDetailScreen() {
       {
         onSuccess: () => {
           setIsEditing(false);
-          setToastMessage("Saved");
-          setToastVisible(true);
         },
       },
     );
@@ -270,12 +265,6 @@ export default function NoteDetailScreen() {
               setTimeout(() => setTodoListVisible(true), 200);
             }
           }}
-        />
-
-        <Toast
-          message={toastMessage}
-          visible={toastVisible}
-          onHide={() => setToastVisible(false)}
         />
       </SafeAreaView>
     </ThemedScreen>
