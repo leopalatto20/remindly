@@ -351,6 +351,32 @@ export default function SearchScreen() {
     }
   }
 
+  /** Render FTS snippet with <mark> highlights split into styled Text elements. */
+  function HighlightedSnippet({ snippet }: { snippet: string }) {
+    const parts = snippet.split(/(<mark>.*?<\/mark>)/g);
+    return (
+      <Text
+        style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}
+        numberOfLines={2}
+      >
+        {parts.map((part, i) => {
+          if (part.startsWith("<mark>") && part.endsWith("</mark>")) {
+            const highlighted = part.slice(6, -7);
+            return (
+              <Text
+                key={i}
+                style={{ backgroundColor: colors.primary + "15" }}
+              >
+                {highlighted}
+              </Text>
+            );
+          }
+          return <Text key={i}>{part}</Text>;
+        })}
+      </Text>
+    );
+  }
+
   function renderResultItem({
     item,
   }: {
@@ -379,22 +405,48 @@ export default function SearchScreen() {
           else router.push(`/note/${r.note_id}`);
         }}
         style={{
-          flexDirection: "row",
-          alignItems: "center",
           paddingHorizontal: 16,
           paddingVertical: 12,
         }}
       >
+        {/* Title row */}
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text style={{ fontSize: 16, color: colors.text, flex: 1 }}>
+            {r.title}
+          </Text>
+          <Text
+            style={{ fontSize: 12, color: colors.textSecondary, marginLeft: 8 }}
+          >
+            {r.type === "todo"
+              ? formatRelativeDate(r.due_date)
+              : formatRelativeTime(r.updated_at)}
+          </Text>
+        </View>
+        {/* Category badge */}
         <View
           style={{
-            width: 8,
-            height: 8,
-            borderRadius: 4,
-            backgroundColor: r.category_color,
-            marginRight: 8,
+            flexDirection: "row",
+            alignItems: "center",
+            marginTop: 4,
           }}
-        />
-        <Text style={{ fontSize: 16, color: colors.text }}>{r.title}</Text>
+        >
+          <View
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: r.category_color,
+              marginRight: 6,
+            }}
+          />
+          <Text style={{ fontSize: 12, color: colors.textSecondary }}>
+            {r.category_name}
+          </Text>
+        </View>
+        {/* Body snippet (notes only) */}
+        {r.type === "note" && r.snippet && (
+          <HighlightedSnippet snippet={r.snippet} />
+        )}
       </Pressable>
     );
   }
@@ -510,12 +562,24 @@ export default function SearchScreen() {
       )}
 
       {isSearching && resultSections.length > 0 && (
-        <FlatList
-          data={resultSections}
-          keyExtractor={(item, i) => String(i)}
-          renderItem={renderResultItem}
-          keyboardShouldPersistTaps="handled"
-        />
+        <>
+          <Text
+            style={{
+              fontSize: 13,
+              color: colors.textSecondary,
+              paddingHorizontal: 16,
+              paddingBottom: 8,
+            }}
+          >
+            {filteredResults.length} result{filteredResults.length !== 1 ? "s" : ""}
+          </Text>
+          <FlatList
+            data={resultSections}
+            keyExtractor={(item, i) => String(i)}
+            renderItem={renderResultItem}
+            keyboardShouldPersistTaps="handled"
+          />
+        </>
       )}
 
       {!isSearching && (
