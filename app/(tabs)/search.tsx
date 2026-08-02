@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FlatList, Text, TextInput, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import { router } from "expo-router";
@@ -38,19 +38,21 @@ export default function SearchScreen() {
     getRecentSearches().then(setRecentSearches);
   }, []);
 
-  function handleSubmit() {
-    const trimmed = query.trim();
-    if (!trimmed) return;
-    saveRecentSearch(trimmed).then(() =>
+  function persistAndRefreshSearches(text: string) {
+    saveRecentSearch(text).then(() =>
       getRecentSearches().then(setRecentSearches),
     );
   }
 
+  function handleSubmit() {
+    const trimmed = query.trim();
+    if (!trimmed) return;
+    persistAndRefreshSearches(trimmed);
+  }
+
   function handleRecentSearchTap(text: string) {
     setQuery(text);
-    saveRecentSearch(text).then(() =>
-      getRecentSearches().then(setRecentSearches),
-    );
+    persistAndRefreshSearches(text);
   }
 
   function todoAccentColor(todo: UrgentTodo): string {
@@ -260,11 +262,9 @@ export default function SearchScreen() {
               paddingVertical: 10,
             }}
           >
-            <SearchIcon
-              size={14}
-              color={colors.textSecondary}
-              style={{ marginRight: 10 }}
-            />
+            <View style={{ marginRight: 10 }}>
+              <SearchIcon size={14} color={colors.textSecondary} />
+            </View>
             <Text style={{ fontSize: 15, color: colors.text }}>{item.text}</Text>
           </Pressable>
         );
@@ -296,7 +296,7 @@ export default function SearchScreen() {
       <Pressable
         onPress={() => {
           if (r.type === "note") router.push(`/note/${r.id}`);
-          else router.push(`/note/${(r as any).note_id}`);
+          else router.push(`/note/${r.note_id}`);
         }}
         style={{
           flexDirection: "row",
