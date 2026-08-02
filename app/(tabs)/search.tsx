@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { FlatList, Text, TextInput, View } from "react-native";
+import { FlatList, ScrollView, Text, TextInput, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import { router } from "expo-router";
 import { Search as SearchIcon, X } from "lucide-react-native";
 import { useSearch } from "../../lib/hooks/useSearch";
+import { useCategories } from "../../lib/hooks/useCategories";
 import { useUrgentTodos } from "../../lib/hooks/useUrgentTodos";
 import { useRecentNotes } from "../../lib/hooks/useRecentNotes";
 import {
@@ -20,6 +21,8 @@ import type { RecentNote } from "../../lib/db/notes";
 import { ThemedScreen } from "../../components/ui/ThemedScreen";
 import { useThemeColors } from "../../lib/theme/colors";
 
+type TypeFilter = "all" | "note" | "todo";
+
 type EmptySection =
   | { type: "section-header"; key: string; title: string }
   | { type: "todo"; key: string; todo: UrgentTodo }
@@ -29,7 +32,13 @@ type EmptySection =
 export default function SearchScreen() {
   const colors = useThemeColors();
   const [query, setQuery] = useState("");
-  const { data: results = [] } = useSearch(query);
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+  const [categoryFilter, setCategoryFilter] = useState<number | undefined>(
+    undefined,
+  );
+
+  const { data: results = [] } = useSearch(query, categoryFilter);
+  const { data: categories = [] } = useCategories();
   const { data: urgentTodos = [] } = useUrgentTodos();
   const { data: recentNotes = [] } = useRecentNotes();
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
@@ -37,6 +46,14 @@ export default function SearchScreen() {
   useEffect(() => {
     getRecentSearches().then(setRecentSearches);
   }, []);
+
+  // Reset filters when search input is cleared
+  useEffect(() => {
+    if (!query.trim()) {
+      setTypeFilter("all");
+      setCategoryFilter(undefined);
+    }
+  }, [query]);
 
   function persistAndRefreshSearches(text: string) {
     saveRecentSearch(text).then(() =>
@@ -67,6 +84,12 @@ export default function SearchScreen() {
     if (diffDays === 0) return colors.warning;
     return colors.textSecondary;
   }
+
+  // Client-side type filter
+  const filteredResults =
+    typeFilter === "all"
+      ? results
+      : results.filter((r) => r.type === typeFilter);
 
   // Build empty-state sections
   const emptySections: EmptySection[] = [];
@@ -108,9 +131,12 @@ export default function SearchScreen() {
     }
   }
 
-  // Build search-result sections
-  const resultSections: { type: "header" | "result"; data: SearchResult | string }[] = [];
-  const grouped = results.reduce<{
+  // Build search-result sections from filtered results
+  const resultSections: {
+    type: "header" | "result";
+    data: SearchResult | string;
+  }[] = [];
+  const grouped = filteredResults.reduce<{
     notes: Record<string, SearchResult[]>;
     todos: Record<string, SearchResult[]>;
   }>(
@@ -144,6 +170,58 @@ export default function SearchScreen() {
   }
 
   const isSearching = query.trim().length > 0;
+  const showFilterBar = isSearching;
+
+  // Filter bar chip component
+  function FilterChip({
+    label,
+    active,
+    onPress,
+    colorDot,
+  }: {
+    label: string;
+    active: boolean;
+    onPress: () => void;
+    colorDot?: string;
+  }) {
+    return (
+      <Pressable
+        onPress={onPress}
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          paddingHorizontal: 14,
+          paddingVertical: 7,
+          borderRadius: 16,
+          backgroundColor: active ? colors.primary : "transparent",
+          borderWidth: active ? 0 : 1,
+          borderColor: colors.border,
+          marginRight: 8,
+        }}
+      >
+        {colorDot !== undefined && (
+          <View
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: active ? "#FFFFFF" : colorDot,
+              marginRight: 6,
+            }}
+          />
+        )}
+        <Text
+          style={{
+            fontSize: 14,
+            fontWeight: active ? "600" : "400",
+            color: active ? "#FFFFFF" : colors.textSecondary,
+          }}
+        >
+          {label}
+        </Text>
+      </Pressable>
+    );
+  }
 
   function renderEmptyItem({ item }: { item: EmptySection }) {
     switch (item.type) {
@@ -265,7 +343,9 @@ export default function SearchScreen() {
             <View style={{ marginRight: 10 }}>
               <SearchIcon size={14} color={colors.textSecondary} />
             </View>
-            <Text style={{ fontSize: 15, color: colors.text }}>{item.text}</Text>
+            <Text style={{ fontSize: 15, color: colors.text }}>
+              {item.text}
+            </Text>
           </Pressable>
         );
     }
@@ -364,6 +444,62 @@ export default function SearchScreen() {
           )}
         </View>
       </View>
+
+      {showFilterBar && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            paddingBottom: 12,
+            alignItems: "center",
+          }}
+        >
+          {/* Type toggles */}
+          <FilterChip
+            label="All"
+            active={typeFilter === "all"}
+            onPress={() => setTypeFilter("all")}
+          />
+          <FilterChip
+            label="Notes"
+            active={typeFilter === "note"}
+            onPress={() => setTypeFilter("note")}
+          />
+          <FilterChip
+            label="Todos"
+            active={typeFilter === "todo"}
+            onPress={() => setTypeFilter("todo")}
+          />
+
+          {/* Separator */}
+          {categories.length > 0 && (
+            <View
+              style={{
+                width: 1,
+                height: 20,
+                backgroundColor: colors.border,
+                marginRight: 8,
+              }}
+            />
+          )}
+
+          {/* Category chips */}
+          {categories.map((cat) => (
+            <FilterChip
+              key={cat.id}
+              label={cat.name}
+              active={categoryFilter === cat.id}
+              onPress={() =>
+                setCategoryFilter(
+                  categoryFilter === cat.id ? undefined : cat.id,
+                )
+              }
+              colorDot={cat.color}
+            />
+          ))}
+        </ScrollView>
+      )}
 
       {isSearching && resultSections.length === 0 && (
         <View style={{ alignItems: "center", paddingTop: 40 }}>
