@@ -46,3 +46,19 @@ export async function deleteNote(id: number): Promise<void> {
   const db = await getDb();
   await db.runAsync("DELETE FROM notes WHERE id = ?", id);
 }
+
+export type RecentNote = Note & {
+  category_color: string;
+  category_name: string;
+};
+
+export async function getRecentNotes(): Promise<RecentNote[]> {
+  const db = await getDb();
+  return await db.getAllAsync<RecentNote>(
+    `SELECT n.*, c.color as category_color, c.name as category_name
+     FROM notes n
+     JOIN categories c ON c.id = n.category_id
+     ORDER BY n.updated_at DESC
+     LIMIT 10`,
+  );
+}

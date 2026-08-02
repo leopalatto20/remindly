@@ -1,16 +1,113 @@
-import { useState } from "react";
-import { FlatList, Pressable, Text, TextInput, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { FlatList, Text, TextInput, View } from "react-native";
+import { Pressable } from "react-native-gesture-handler";
 import { router } from "expo-router";
+import { Search as SearchIcon, X } from "lucide-react-native";
 import { useSearch } from "../../lib/hooks/useSearch";
+import { useUrgentTodos } from "../../lib/hooks/useUrgentTodos";
+import { useRecentNotes } from "../../lib/hooks/useRecentNotes";
+import {
+  getRecentSearches,
+  saveRecentSearch,
+} from "../../lib/utils/recentSearches";
+import {
+  formatRelativeDate,
+  formatRelativeTime,
+} from "../../lib/utils/relativeDate";
 import type { SearchResult } from "../../lib/db/search";
+import type { UrgentTodo } from "../../lib/hooks/useUrgentTodos";
+import type { RecentNote } from "../../lib/db/notes";
 import { ThemedScreen } from "../../components/ui/ThemedScreen";
 import { useThemeColors } from "../../lib/theme/colors";
+
+type EmptySection =
+  | { type: "section-header"; key: string; title: string }
+  | { type: "todo"; key: string; todo: UrgentTodo }
+  | { type: "note"; key: string; note: RecentNote }
+  | { type: "recent-search"; key: string; text: string };
 
 export default function SearchScreen() {
   const colors = useThemeColors();
   const [query, setQuery] = useState("");
   const { data: results = [] } = useSearch(query);
+  const { data: urgentTodos = [] } = useUrgentTodos();
+  const { data: recentNotes = [] } = useRecentNotes();
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
+  useEffect(() => {
+    getRecentSearches().then(setRecentSearches);
+  }, []);
+
+  function handleSubmit() {
+    const trimmed = query.trim();
+    if (!trimmed) return;
+    saveRecentSearch(trimmed).then(() =>
+      getRecentSearches().then(setRecentSearches),
+    );
+  }
+
+  function handleRecentSearchTap(text: string) {
+    setQuery(text);
+    saveRecentSearch(text).then(() =>
+      getRecentSearches().then(setRecentSearches),
+    );
+  }
+
+  function todoAccentColor(todo: UrgentTodo): string {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const due = new Date(todo.due_date);
+    const dueDay = new Date(due.getFullYear(), due.getMonth(), due.getDate());
+    const diffMs = dueDay.getTime() - today.getTime();
+    const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return colors.danger;
+    if (diffDays === 0) return colors.warning;
+    return colors.textSecondary;
+  }
+
+  // Build empty-state sections
+  const emptySections: EmptySection[] = [];
+
+  if (urgentTodos.length > 0) {
+    emptySections.push({
+      type: "section-header",
+      key: "header-todos",
+      title: "Upcoming & Overdue",
+    });
+    for (const todo of urgentTodos.slice(0, 5)) {
+      emptySections.push({ type: "todo", key: `todo-${todo.id}`, todo });
+    }
+  }
+
+  if (recentNotes.length > 0) {
+    emptySections.push({
+      type: "section-header",
+      key: "header-notes",
+      title: "Recent Notes",
+    });
+    for (const note of recentNotes) {
+      emptySections.push({ type: "note", key: `note-${note.id}`, note });
+    }
+  }
+
+  if (recentSearches.length > 0) {
+    emptySections.push({
+      type: "section-header",
+      key: "header-searches",
+      title: "Recent Searches",
+    });
+    for (const text of recentSearches) {
+      emptySections.push({
+        type: "recent-search",
+        key: `search-${text}`,
+        text,
+      });
+    }
+  }
+
+  // Build search-result sections
+  const resultSections: { type: "header" | "result"; data: SearchResult | string }[] = [];
   const grouped = results.reduce<{
     notes: Record<string, SearchResult[]>;
     todos: Record<string, SearchResult[]>;
@@ -29,104 +126,271 @@ export default function SearchScreen() {
     { notes: {}, todos: {} },
   );
 
-  const sections: { type: "header" | "result"; data: SearchResult | string }[] = [];
-
   if (Object.keys(grouped.notes).length > 0) {
-    sections.push({ type: "header", data: "Notes" });
+    resultSections.push({ type: "header", data: "Notes" });
     Object.entries(grouped.notes).forEach(([catName, items]) => {
-      sections.push({ type: "header", data: catName });
-      items.forEach((n) => sections.push({ type: "result", data: n }));
+      resultSections.push({ type: "header", data: catName });
+      items.forEach((n) => resultSections.push({ type: "result", data: n }));
     });
   }
   if (Object.keys(grouped.todos).length > 0) {
-    sections.push({ type: "header", data: "Todos" });
+    resultSections.push({ type: "header", data: "Todos" });
     Object.entries(grouped.todos).forEach(([catName, items]) => {
-      sections.push({ type: "header", data: catName });
-      items.forEach((t) => sections.push({ type: "result", data: t }));
+      resultSections.push({ type: "header", data: catName });
+      items.forEach((t) => resultSections.push({ type: "result", data: t }));
     });
+  }
+
+  const isSearching = query.trim().length > 0;
+
+  function renderEmptyItem({ item }: { item: EmptySection }) {
+    switch (item.type) {
+      case "section-header":
+        return (
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "600",
+              paddingHorizontal: 16,
+              paddingTop: 16,
+              paddingBottom: 8,
+              color: colors.primary,
+            }}
+          >
+            {item.title}
+          </Text>
+        );
+      case "todo":
+        return (
+          <Pressable
+            onPress={() => router.push(`/note/${item.todo.note_id}`)}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: 16,
+              paddingVertical: 10,
+              marginHorizontal: 16,
+              backgroundColor: todoAccentColor(item.todo) + "12",
+              borderRadius: 8,
+              marginBottom: 4,
+            }}
+          >
+            <View
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: 3,
+                backgroundColor: todoAccentColor(item.todo),
+                marginRight: 10,
+              }}
+            />
+            <View style={{ flex: 1 }}>
+              <Text
+                style={{ fontSize: 15, color: colors.text }}
+                numberOfLines={1}
+              >
+                {item.todo.title}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: colors.textSecondary,
+                  marginTop: 2,
+                }}
+              >
+                {item.todo.note_title}
+              </Text>
+            </View>
+            <Text
+              style={{
+                fontSize: 12,
+                color: todoAccentColor(item.todo),
+                marginLeft: 8,
+              }}
+            >
+              {formatRelativeDate(item.todo.due_date)}
+            </Text>
+          </Pressable>
+        );
+      case "note":
+        return (
+          <Pressable
+            onPress={() => router.push(`/note/${item.note.id}`)}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: 16,
+              paddingVertical: 10,
+            }}
+          >
+            <View
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: 4,
+                backgroundColor: item.note.category_color,
+                marginRight: 10,
+              }}
+            />
+            <Text
+              style={{ flex: 1, fontSize: 15, color: colors.text }}
+              numberOfLines={1}
+            >
+              {item.note.title}
+            </Text>
+            <Text
+              style={{
+                fontSize: 12,
+                color: colors.textSecondary,
+                marginLeft: 8,
+              }}
+            >
+              {formatRelativeTime(item.note.updated_at)}
+            </Text>
+          </Pressable>
+        );
+      case "recent-search":
+        return (
+          <Pressable
+            onPress={() => handleRecentSearchTap(item.text)}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: 16,
+              paddingVertical: 10,
+            }}
+          >
+            <SearchIcon
+              size={14}
+              color={colors.textSecondary}
+              style={{ marginRight: 10 }}
+            />
+            <Text style={{ fontSize: 15, color: colors.text }}>{item.text}</Text>
+          </Pressable>
+        );
+    }
+  }
+
+  function renderResultItem({
+    item,
+  }: {
+    item: { type: "header" | "result"; data: SearchResult | string };
+  }) {
+    if (item.type === "header") {
+      return (
+        <Text
+          style={{
+            fontSize: 16,
+            fontWeight: "700",
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            color: colors.primary,
+          }}
+        >
+          {item.data as string}
+        </Text>
+      );
+    }
+    const r = item.data as SearchResult;
+    return (
+      <Pressable
+        onPress={() => {
+          if (r.type === "note") router.push(`/note/${r.id}`);
+          else router.push(`/note/${(r as any).note_id}`);
+        }}
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+        }}
+      >
+        <View
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: r.category_color,
+            marginRight: 8,
+          }}
+        />
+        <Text style={{ fontSize: 16, color: colors.text }}>{r.title}</Text>
+      </Pressable>
+    );
   }
 
   return (
     <ThemedScreen>
       <View style={{ padding: 16, paddingTop: 60 }}>
-        <Text style={{ fontSize: 28, fontWeight: "bold", marginBottom: 16, color: colors.text }}>Search</Text>
-        <TextInput
-          placeholder="Search notes and todos..."
-          value={query}
-          onChangeText={setQuery}
+        <Text
           style={{
-            padding: 12,
-            backgroundColor: colors.card,
-            borderRadius: 10,
-            fontSize: 16,
+            fontSize: 28,
+            fontWeight: "bold",
+            marginBottom: 16,
             color: colors.text,
           }}
-          placeholderTextColor={colors.textSecondary}
-          autoFocus
-        />
+        >
+          Search
+        </Text>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            backgroundColor: colors.card,
+            borderRadius: 10,
+            paddingHorizontal: 12,
+          }}
+        >
+          <SearchIcon size={18} color={colors.textSecondary} />
+          <TextInput
+            placeholder="Search notes and todos..."
+            value={query}
+            onChangeText={setQuery}
+            onSubmitEditing={handleSubmit}
+            returnKeyType="search"
+            style={{
+              flex: 1,
+              padding: 12,
+              fontSize: 16,
+              color: colors.text,
+            }}
+            placeholderTextColor={colors.textSecondary}
+            autoFocus
+          />
+          {query.length > 0 && (
+            <Pressable onPress={() => setQuery("")}>
+              <X size={18} color={colors.textSecondary} />
+            </Pressable>
+          )}
+        </View>
       </View>
 
-      {sections.length === 0 && query.trim() ? (
+      {isSearching && resultSections.length === 0 && (
         <View style={{ alignItems: "center", paddingTop: 40 }}>
           <Text style={{ fontSize: 16, color: colors.textSecondary }}>
-            No results for '{query}'
+            No results for &lsquo;{query}&rsquo;
           </Text>
         </View>
-      ) : null}
+      )}
 
-      {sections.length === 0 && !query.trim() ? (
-        <View style={{ alignItems: "center", paddingTop: 40 }}>
-          <Text style={{ fontSize: 16, color: colors.textSecondary }}>Type to search</Text>
-        </View>
-      ) : null}
+      {isSearching && resultSections.length > 0 && (
+        <FlatList
+          data={resultSections}
+          keyExtractor={(item, i) => String(i)}
+          renderItem={renderResultItem}
+          keyboardShouldPersistTaps="handled"
+        />
+      )}
 
-      <FlatList
-        data={sections}
-        keyExtractor={(item, i) => String(i)}
-        renderItem={({ item }) => {
-          if (item.type === "header") {
-            return (
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontWeight: "700",
-                  paddingHorizontal: 16,
-                  paddingVertical: 8,
-                  color: colors.primary,
-                }}
-              >
-                {item.data as string}
-              </Text>
-            );
-          }
-          const r = item.data as SearchResult;
-          return (
-            <Pressable
-              onPress={() => {
-                if (r.type === "note") router.push(`/note/${r.id}`);
-                else router.push(`/note/${(r as any).note_id}`);
-              }}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-              }}
-            >
-              <View
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: 4,
-                  backgroundColor: r.category_color,
-                  marginRight: 8,
-                }}
-              />
-              <Text style={{ fontSize: 16, color: colors.text }}>{r.title}</Text>
-            </Pressable>
-          );
-        }}
-      />
+      {!isSearching && (
+        <FlatList
+          data={emptySections}
+          keyExtractor={(item) => item.key}
+          renderItem={renderEmptyItem}
+          contentContainerStyle={{ paddingBottom: 32 }}
+          keyboardShouldPersistTaps="handled"
+        />
+      )}
     </ThemedScreen>
   );
 }

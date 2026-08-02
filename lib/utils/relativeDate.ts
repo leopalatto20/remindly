@@ -20,3 +20,24 @@ export function formatRelativeDate(dateStr: string): string {
   if (diffDays <= 14) return "in 1 week";
   return `in ${Math.ceil(diffDays / 7)} weeks`;
 }
+
+/**
+ * Format a date string as relative time past (e.g. "2h ago", "3d ago", "1w ago").
+ */
+export function formatRelativeTime(dateStr: string): string {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  const diffWeeks = Math.floor(diffDays / 7);
+
+  if (diffMinutes < 1) return "just now";
+  if (diffMinutes < 60) return `${diffMinutes}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffWeeks < 4) return `${diffWeeks}w ago`;
+  return date.toLocaleDateString();
+}
