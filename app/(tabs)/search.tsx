@@ -3,6 +3,7 @@ import { FlatList, ScrollView, Text, TextInput, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import { router } from "expo-router";
 import { Search as SearchIcon, X } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSearch } from "../../lib/hooks/useSearch";
 import { useCategories } from "../../lib/hooks/useCategories";
 import { useUrgentTodos } from "../../lib/hooks/useUrgentTodos";
@@ -31,6 +32,7 @@ type EmptySection =
 
 export default function SearchScreen() {
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [categoryFilter, setCategoryFilter] = useState<number | undefined>(
@@ -453,17 +455,7 @@ export default function SearchScreen() {
 
   return (
     <ThemedScreen>
-      <View style={{ padding: 16, paddingTop: 60 }}>
-        <Text
-          style={{
-            fontSize: 28,
-            fontWeight: "bold",
-            marginBottom: 16,
-            color: colors.text,
-          }}
-        >
-          Search
-        </Text>
+      <View style={{ paddingHorizontal: 16, paddingTop: insets.top, gap: 8 }}>
         <View
           style={{
             flexDirection: "row",
@@ -482,7 +474,8 @@ export default function SearchScreen() {
             returnKeyType="search"
             style={{
               flex: 1,
-              padding: 12,
+              paddingHorizontal: 12,
+              paddingVertical: 10,
               fontSize: 16,
               color: colors.text,
             }}
@@ -495,102 +488,100 @@ export default function SearchScreen() {
             </Pressable>
           )}
         </View>
-      </View>
 
-      {showFilterBar && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingHorizontal: 16,
-            paddingBottom: 12,
-            alignItems: "center",
-          }}
-        >
-          {/* Type toggles */}
-          <FilterChip
-            label="All"
-            active={typeFilter === "all"}
-            onPress={() => setTypeFilter("all")}
-          />
-          <FilterChip
-            label="Notes"
-            active={typeFilter === "note"}
-            onPress={() => setTypeFilter("note")}
-          />
-          <FilterChip
-            label="Todos"
-            active={typeFilter === "todo"}
-            onPress={() => setTypeFilter("todo")}
-          />
-
-          {/* Separator */}
-          {categories.length > 0 && (
-            <View
-              style={{
-                width: 1,
-                height: 20,
-                backgroundColor: colors.border,
-                marginRight: 8,
-              }}
-            />
-          )}
-
-          {/* Category chips */}
-          {categories.map((cat) => (
-            <FilterChip
-              key={cat.id}
-              label={cat.name}
-              active={categoryFilter === cat.id}
-              onPress={() =>
-                setCategoryFilter(
-                  categoryFilter === cat.id ? undefined : cat.id,
-                )
-              }
-              colorDot={cat.color}
-            />
-          ))}
-        </ScrollView>
-      )}
-
-      {isSearching && resultSections.length === 0 && (
-        <View style={{ alignItems: "center", paddingTop: 40 }}>
-          <Text style={{ fontSize: 16, color: colors.textSecondary }}>
-            No results for &lsquo;{query}&rsquo;
-          </Text>
-        </View>
-      )}
-
-      {isSearching && resultSections.length > 0 && (
-        <>
-          <Text
-            style={{
-              fontSize: 13,
-              color: colors.textSecondary,
-              paddingHorizontal: 16,
-              paddingBottom: 8,
+        {showFilterBar && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              alignItems: "center",
             }}
           >
-            {filteredResults.length} result{filteredResults.length !== 1 ? "s" : ""}
-          </Text>
+            {/* Type toggles */}
+            <FilterChip
+              label="All"
+              active={typeFilter === "all"}
+              onPress={() => setTypeFilter("all")}
+            />
+            <FilterChip
+              label="Notes"
+              active={typeFilter === "note"}
+              onPress={() => setTypeFilter("note")}
+            />
+            <FilterChip
+              label="Todos"
+              active={typeFilter === "todo"}
+              onPress={() => setTypeFilter("todo")}
+            />
+
+            {/* Separator */}
+            {categories.length > 0 && (
+              <View
+                style={{
+                  width: 1,
+                  height: 20,
+                  backgroundColor: colors.border,
+                  marginRight: 8,
+                }}
+              />
+            )}
+
+            {/* Category chips */}
+            {categories.map((cat) => (
+              <FilterChip
+                key={cat.id}
+                label={cat.name}
+                active={categoryFilter === cat.id}
+                onPress={() =>
+                  setCategoryFilter(
+                    categoryFilter === cat.id ? undefined : cat.id,
+                  )
+                }
+                colorDot={cat.color}
+              />
+            ))}
+          </ScrollView>
+        )}
+
+        {isSearching && resultSections.length === 0 && (
+          <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+            <Text style={{ fontSize: 16, color: colors.textSecondary }}>
+              No results for &lsquo;{query}&rsquo;
+            </Text>
+          </View>
+        )}
+
+        {isSearching && resultSections.length > 0 && (
           <FlatList
             data={resultSections}
             keyExtractor={(item, i) => String(i)}
             renderItem={renderResultItem}
+            ListHeaderComponent={
+              <Text
+                style={{
+                  fontSize: 13,
+                  color: colors.textSecondary,
+                  paddingHorizontal: 16,
+                  paddingBottom: 4,
+                }}
+              >
+                {filteredResults.length} result{filteredResults.length !== 1 ? "s" : ""}
+              </Text>
+            }
             keyboardShouldPersistTaps="handled"
           />
-        </>
-      )}
+        )}
 
-      {!isSearching && (
-        <FlatList
-          data={emptySections}
-          keyExtractor={(item) => item.key}
-          renderItem={renderEmptyItem}
-          contentContainerStyle={{ paddingBottom: 32 }}
-          keyboardShouldPersistTaps="handled"
-        />
-      )}
+        {!isSearching && (
+          <FlatList
+            data={emptySections}
+            keyExtractor={(item) => item.key}
+            renderItem={renderEmptyItem}
+            contentContainerStyle={{ paddingBottom: 32 }}
+            keyboardShouldPersistTaps="handled"
+          />
+        )}
+      </View>
     </ThemedScreen>
   );
 }
