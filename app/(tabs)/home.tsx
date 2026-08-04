@@ -3,6 +3,7 @@ import { Alert, FlatList, Modal, Text, TextInput, View } from "react-native";
 import { Pressable, ScrollView } from "react-native-gesture-handler";
 import { router } from "expo-router";
 import { Settings } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { UrgentTodosList } from "../../components/todos/UrgentTodosList";
 import { ThemedScreen } from "../../components/ui/ThemedScreen";
 import { SwipeableDeleteAction } from "../../components/ui/SwipeableDeleteAction";
@@ -16,6 +17,7 @@ import { useToggleTodo } from "../../lib/hooks/useTodos";
 
 export default function HomeScreen() {
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const { data: categories = [] } = useCategories();
   const { data: urgentTodos = [] } = useUrgentTodos();
   const createCategory = useCreateCategory();
@@ -46,7 +48,7 @@ export default function HomeScreen() {
           justifyContent: "space-between",
           alignItems: "center",
           padding: 16,
-          paddingTop: 60,
+          paddingTop: insets.top,
         }}
       >
         <Text style={{ fontSize: 28, fontWeight: "bold", color: colors.text }}>Remindly</Text>
