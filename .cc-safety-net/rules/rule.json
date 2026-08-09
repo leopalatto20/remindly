@@ -1,8 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/kenryu42/cc-safety-net/main/assets/cc-safety-net.schema.json",
   "version": 1,
-  "rules": [
-    "project-rules"
-  ],
+  "rules": ["project-rules"],
   "overrides": {}
 }

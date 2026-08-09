@@ -4,13 +4,7 @@
   "version": "1.0.0",
   "description": "Remindly project rules — expo install wrapper and destructive git protection.",
   "author": "project",
-  "allowed_commands": [
-    "npm",
-    "yarn",
-    "pnpm",
-    "bun",
-    "git"
-  ],
+  "allowed_commands": ["npm", "yarn", "pnpm", "bun", "git"],
   "rules": [
     {
       "name": "block-npm-install",
