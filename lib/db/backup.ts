@@ -80,9 +80,11 @@ function validateBackupData(data: unknown): ValidationError | null {
 export async function exportData(): Promise<string> {
   const db = await getDb();
 
-  const categories = await db.getAllAsync<Category>("SELECT * FROM categories ORDER BY id");
-  const notes = await db.getAllAsync<Note>("SELECT * FROM notes ORDER BY id");
-  const todos = await db.getAllAsync<Todo>("SELECT * FROM todos ORDER BY id");
+  const [categories, notes, todos] = await Promise.all([
+    db.getAllAsync<Category>("SELECT * FROM categories ORDER BY id"),
+    db.getAllAsync<Note>("SELECT * FROM notes ORDER BY id"),
+    db.getAllAsync<Todo>("SELECT * FROM todos ORDER BY id"),
+  ]);
 
   const backup: BackupData = {
     exportedAt: new Date().toISOString(),
@@ -120,42 +122,48 @@ export async function importData(
     await db.runAsync("DELETE FROM notes");
     await db.runAsync("DELETE FROM categories");
 
-    for (const cat of data.categories) {
-      await db.runAsync(
-        "INSERT INTO categories (id, name, icon, color, created_at, updated_at) VALUES (?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP), COALESCE(?, CURRENT_TIMESTAMP))",
-        cat.id,
-        cat.name,
-        cat.icon,
-        cat.color,
-        cat.created_at,
-        cat.updated_at,
-      );
-    }
+    await Promise.all(
+      data.categories.map((cat) =>
+        db.runAsync(
+          "INSERT INTO categories (id, name, icon, color, created_at, updated_at) VALUES (?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP), COALESCE(?, CURRENT_TIMESTAMP))",
+          cat.id,
+          cat.name,
+          cat.icon,
+          cat.color,
+          cat.created_at,
+          cat.updated_at,
+        ),
+      ),
+    );
 
-    for (const note of data.notes) {
-      await db.runAsync(
-        "INSERT INTO notes (id, title, body, category_id, created_at, updated_at) VALUES (?, ?, COALESCE(?, ''), ?, COALESCE(?, CURRENT_TIMESTAMP), COALESCE(?, CURRENT_TIMESTAMP))",
-        note.id,
-        note.title,
-        note.body,
-        note.category_id,
-        note.created_at,
-        note.updated_at,
-      );
-    }
+    await Promise.all(
+      data.notes.map((note) =>
+        db.runAsync(
+          "INSERT INTO notes (id, title, body, category_id, created_at, updated_at) VALUES (?, ?, COALESCE(?, ''), ?, COALESCE(?, CURRENT_TIMESTAMP), COALESCE(?, CURRENT_TIMESTAMP))",
+          note.id,
+          note.title,
+          note.body,
+          note.category_id,
+          note.created_at,
+          note.updated_at,
+        ),
+      ),
+    );
 
-    for (const todo of data.todos) {
-      await db.runAsync(
-        "INSERT INTO todos (id, title, due_date, completed, note_id, created_at, updated_at) VALUES (?, ?, ?, COALESCE(?, 0), ?, COALESCE(?, CURRENT_TIMESTAMP), COALESCE(?, CURRENT_TIMESTAMP))",
-        todo.id,
-        todo.title,
-        todo.due_date,
-        todo.completed,
-        todo.note_id,
-        todo.created_at,
-        todo.updated_at,
-      );
-    }
+    await Promise.all(
+      data.todos.map((todo) =>
+        db.runAsync(
+          "INSERT INTO todos (id, title, due_date, completed, note_id, created_at, updated_at) VALUES (?, ?, ?, COALESCE(?, 0), ?, COALESCE(?, CURRENT_TIMESTAMP), COALESCE(?, CURRENT_TIMESTAMP))",
+          todo.id,
+          todo.title,
+          todo.due_date,
+          todo.completed,
+          todo.note_id,
+          todo.created_at,
+          todo.updated_at,
+        ),
+      ),
+    );
 
     await db.execAsync("INSERT INTO notes_fts(notes_fts) VALUES('rebuild')");
     await db.execAsync("INSERT INTO todos_fts(todos_fts) VALUES('rebuild')");

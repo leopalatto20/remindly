@@ -67,8 +67,3 @@ export async function toggleTodoCompleted(id: number): Promise<void> {
     id,
   );
 }
-
-export async function deleteTodo(id: number): Promise<void> {
-  const db = await getDb();
-  await db.runAsync("DELETE FROM todos WHERE id = ?", id);
-}

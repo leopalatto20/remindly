@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { FlatList, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import { DynamicIcon } from "../../lib/icons/DynamicIcon";
@@ -29,6 +30,14 @@ const ICONS = [
   { name: "Clapperboard", label: "Film" },
 ];
 
+const ICON_BUTTON_STYLE = {
+  width: 48,
+  height: 48,
+  borderRadius: 12,
+  alignItems: "center" as const,
+  justifyContent: "center" as const,
+};
+
 interface IconPickerProps {
   selected: string;
   onSelect: (icon: string) => void;
@@ -36,6 +45,30 @@ interface IconPickerProps {
 
 export function IconPicker({ selected, onSelect }: IconPickerProps) {
   const colors = useThemeColors();
+
+  const renderIconItem = useCallback(
+    ({ item }: { item: { name: string; label: string } }) => (
+      <Pressable
+        onPress={() => onSelect(item.name)}
+        style={[
+          ICON_BUTTON_STYLE,
+          {
+            backgroundColor: selected === item.name ? colors.primary + "20" : colors.card,
+            borderWidth: selected === item.name ? 2 : 0,
+            borderColor: colors.primary,
+          },
+        ]}
+      >
+        <DynamicIcon
+          name={item.name}
+          size={22}
+          color={selected === item.name ? colors.primary : colors.textSecondary}
+        />
+      </Pressable>
+    ),
+    [selected, onSelect, colors.primary, colors.card, colors.textSecondary],
+  );
+
   return (
     <View>
       <FlatList
@@ -44,27 +77,7 @@ export function IconPicker({ selected, onSelect }: IconPickerProps) {
         numColumns={6}
         scrollEnabled={false}
         columnWrapperStyle={{ gap: 8, marginBottom: 8 }}
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() => onSelect(item.name)}
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 12,
-              backgroundColor: selected === item.name ? colors.primary + "20" : colors.card,
-              alignItems: "center",
-              justifyContent: "center",
-              borderWidth: selected === item.name ? 2 : 0,
-              borderColor: colors.primary,
-            }}
-          >
-            <DynamicIcon
-              name={item.name}
-              size={22}
-              color={selected === item.name ? colors.primary : colors.textSecondary}
-            />
-          </Pressable>
-        )}
+        renderItem={renderIconItem}
       />
     </View>
   );

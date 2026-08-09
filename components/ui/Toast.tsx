@@ -1,5 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import { useEffect } from "react";
+import { StyleSheet, Text } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withDelay,
+} from "react-native-reanimated";
+import { runOnJS } from "react-native-worklets";
 
 interface ToastProps {
   message: string;
@@ -8,30 +15,29 @@ interface ToastProps {
 }
 
 export function Toast({ message, visible, onHide }: ToastProps) {
-  const [opacity] = useState(new Animated.Value(0));
+  const opacity = useSharedValue(0);
 
   useEffect(() => {
     if (visible) {
-      Animated.sequence([
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.delay(1500),
-        Animated.timing(opacity, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start(() => onHide());
+      opacity.value = withTiming(1, { duration: 200 }, () => {
+        opacity.value = withDelay(
+          1500,
+          withTiming(0, { duration: 200 }, () => {
+            runOnJS(onHide)();
+          }),
+        );
+      });
     }
-  }, [visible]);
+  }, [visible, opacity, onHide]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
 
   if (!visible) return null;
 
   return (
-    <Animated.View style={[styles.container, { opacity }]}>
+    <Animated.View style={[styles.container, animatedStyle]}>
       <Text style={styles.text}>{message}</Text>
     </Animated.View>
   );

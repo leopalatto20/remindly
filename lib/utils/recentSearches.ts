@@ -18,9 +18,6 @@ export async function saveRecentSearch(query: string): Promise<void> {
   if (!trimmed) return;
 
   const existing = await getRecentSearches();
-  const deduped = [trimmed, ...existing.filter((s) => s !== trimmed)].slice(
-    0,
-    MAX_SEARCHES,
-  );
+  const deduped = [trimmed, ...existing.filter((s) => s !== trimmed)].slice(0, MAX_SEARCHES);
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(deduped));
 }

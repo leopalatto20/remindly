@@ -1,12 +1,12 @@
 import { Alert, Pressable, ScrollView, Text, View } from "react-native";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { shareAsync } from "expo-sharing";
 import { getDocumentAsync } from "expo-document-picker";
 import { File } from "expo-file-system";
 import { Paths } from "expo-file-system";
-import { useTheme, type ThemeMode } from "../lib/theme";
+import { useTheme, type ThemeMode } from "../lib/theme/ThemeContext";
 import { ThemedScreen } from "../components/ui/ThemedScreen";
 import { useThemeColors } from "../lib/theme/colors";
 import { exportData, importData, backupFilename } from "../lib/db/backup";
@@ -25,6 +25,16 @@ const themeOptions: { label: string; value: ThemeMode }[] = [
   { label: "Dark", value: "dark" },
   { label: "System", value: "system" },
 ];
+
+const REMINDER_LABELS: Record<ReminderOffset, string> = {
+  0: "Off",
+  1: "1 hour before",
+  2: "2 hours before",
+  3: "3 hours before",
+  4: "4 hours before",
+  5: "5 hours before",
+  6: "6 hours before",
+};
 
 export default function SettingsScreen() {
   const colors = useThemeColors();
@@ -53,16 +63,6 @@ export default function SettingsScreen() {
   function hideToast() {
     setToast({ message: "", visible: false });
   }
-
-  const reminderLabels: Record<ReminderOffset, string> = {
-    0: "Off",
-    1: "1 hour before",
-    2: "2 hours before",
-    3: "3 hours before",
-    4: "4 hours before",
-    5: "5 hours before",
-    6: "6 hours before",
-  };
 
   async function handleReminderPress() {
     const showActions = async () => {
@@ -183,7 +183,10 @@ export default function SettingsScreen() {
     <ThemedScreen>
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 16 }}
+        contentContainerStyle={useMemo(
+          () => ({ padding: 16, paddingBottom: insets.bottom + 16 }),
+          [insets.bottom],
+        )}
       >
         <Text
           style={{
@@ -271,7 +274,7 @@ export default function SettingsScreen() {
             >
               <Text style={{ fontSize: 16, color: colors.text }}>Remind me</Text>
               <Text style={{ fontSize: 16, color: colors.textSecondary }}>
-                {reminderLabels[reminderOffset]}
+                {REMINDER_LABELS[reminderOffset]}
               </Text>
             </Pressable>
           </>

@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { LayoutChangeEvent, View } from "react-native";
-import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import { runOnJS } from "react-native-worklets";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { hexToHsv, hsvToHex } from "../../lib/colors";
 import { useThemeColors } from "../../lib/theme/colors";
@@ -33,6 +34,27 @@ function generateHueSegments(count: number): string[] {
   });
 }
 
+const SLIDER_CONTAINER_STYLE = {
+  height: 28,
+  borderRadius: 14,
+  flexDirection: "row" as const,
+  overflow: "hidden" as const,
+  position: "relative" as const,
+};
+
+const THUMB_STYLE = {
+  position: "absolute" as const,
+  top: -4,
+  width: 36,
+  height: 36,
+  borderRadius: 18,
+  borderWidth: 3,
+  borderColor: "#FFFFFF",
+  backgroundColor: "#FFFFFF",
+  boxShadow: "0px 1px 3px rgba(0,0,0,0.3)",
+  elevation: 4,
+};
+
 interface SliderProps {
   value: number;
   onValueChange: (v: number) => void;
@@ -43,9 +65,13 @@ function ColorSlider({ value, onValueChange, colors }: SliderProps) {
   const width = useSharedValue(0);
   const pos = useSharedValue(value);
 
-  const onLayout = useCallback((e: LayoutChangeEvent) => {
-    width.value = e.nativeEvent.layout.width;
-  }, []);
+  const onLayout = useCallback(
+    (e: LayoutChangeEvent) => {
+      "worklet";
+      width.value = e.nativeEvent.layout.width;
+    },
+    [width],
+  );
 
   const gesture = Gesture.Pan()
     .onUpdate((e) => {
@@ -64,45 +90,17 @@ function ColorSlider({ value, onValueChange, colors }: SliderProps) {
     })
     .minDistance(0);
 
-  const thumbStyle = useAnimatedStyle(() => ({
+  const thumbAnimStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: pos.value * Math.max(width.value - 36, 0) }],
   }));
 
   return (
     <GestureDetector gesture={gesture}>
-      <Animated.View
-        onLayout={onLayout}
-        style={{
-          height: 28,
-          borderRadius: 14,
-          flexDirection: "row",
-          overflow: "hidden",
-          position: "relative",
-        }}
-      >
-        {colors.map((c, i) => (
-          <View key={i} style={{ flex: 1, backgroundColor: c }} />
+      <Animated.View onLayout={onLayout} style={SLIDER_CONTAINER_STYLE}>
+        {colors.map((c) => (
+          <View key={c} style={{ flex: 1, backgroundColor: c }} />
         ))}
-        <Animated.View
-          style={[
-            {
-              position: "absolute",
-              top: -4,
-              width: 36,
-              height: 36,
-              borderRadius: 18,
-              borderWidth: 3,
-              borderColor: "#FFFFFF",
-              backgroundColor: "#FFFFFF",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.3,
-              shadowRadius: 3,
-              elevation: 4,
-            },
-            thumbStyle,
-          ]}
-        />
+        <Animated.View style={[THUMB_STYLE, thumbAnimStyle]} />
       </Animated.View>
     </GestureDetector>
   );

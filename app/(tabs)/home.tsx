@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Alert, FlatList, Modal, Text, TextInput, View } from "react-native";
 import { Pressable, ScrollView } from "react-native-gesture-handler";
 import { router } from "expo-router";
@@ -15,6 +15,23 @@ import { useCategories, useCreateCategory, useDeleteCategory } from "../../lib/h
 import { useUrgentTodos } from "../../lib/hooks/useUrgentTodos";
 import { useToggleTodo } from "../../lib/hooks/useTodos";
 
+const ITEM_STYLE = {
+  flexDirection: "row" as const,
+  alignItems: "center" as const,
+  padding: 16,
+  borderRadius: 12,
+  marginBottom: 8,
+};
+
+const ICON_CONTAINER_STYLE = {
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  alignItems: "center" as const,
+  justifyContent: "center" as const,
+  marginRight: 12,
+};
+
 export default function HomeScreen() {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
@@ -29,16 +46,36 @@ export default function HomeScreen() {
   const [newCatIcon, setNewCatIcon] = useState("Book");
   const [newCatColor, setNewCatColor] = useState("#007AFF");
 
-  function handleDeleteCategory(cat: { id: number; name: string }) {
-    Alert.alert("Delete Category", `Delete "${cat.name}" and all its notes?`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: () => deleteCategory.mutate(cat.id),
-      },
-    ]);
-  }
+  const handleDeleteCategory = useCallback(
+    (cat: { id: number; name: string }) => {
+      Alert.alert("Delete Category", `Delete "${cat.name}" and all its notes?`, [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteCategory.mutate(cat.id),
+        },
+      ]);
+    },
+    [deleteCategory],
+  );
+
+  const renderCategoryItem = useCallback(
+    ({ item }: { item: { id: number; name: string; icon: string; color: string } }) => (
+      <SwipeableDeleteAction onDelete={() => handleDeleteCategory(item)}>
+        <Pressable
+          onPress={() => router.push(`/category/${item.id}`)}
+          style={[ITEM_STYLE, { backgroundColor: colors.card }]}
+        >
+          <View style={[ICON_CONTAINER_STYLE, { backgroundColor: item.color + "20" }]}>
+            <DynamicIcon name={item.icon} size={20} color={item.color} />
+          </View>
+          <Text style={{ fontSize: 16, fontWeight: "600", color: colors.text }}>{item.name}</Text>
+        </Pressable>
+      </SwipeableDeleteAction>
+    ),
+    [colors.card, colors.text, handleDeleteCategory],
+  );
 
   return (
     <ThemedScreen>
@@ -61,42 +98,10 @@ export default function HomeScreen() {
         data={categories}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={{ padding: 16 }}
-        renderItem={({ item }) => (
-          <SwipeableDeleteAction onDelete={() => handleDeleteCategory(item)}>
-            <Pressable
-              onPress={() => router.push(`/category/${item.id}`)}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                padding: 16,
-                backgroundColor: colors.card,
-                borderRadius: 12,
-                marginBottom: 8,
-              }}
-            >
-              <View
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 20,
-                  backgroundColor: item.color + "20",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginRight: 12,
-                }}
-              >
-                <DynamicIcon name={item.icon} size={20} color={item.color} />
-              </View>
-              <Text style={{ fontSize: 16, fontWeight: "600", color: colors.text }}>{item.name}</Text>
-            </Pressable>
-          </SwipeableDeleteAction>
-        )}
+        renderItem={renderCategoryItem}
         ListHeaderComponent={
           urgentTodos.length > 0 ? (
-            <UrgentTodosList
-              todos={urgentTodos}
-              onToggleTodo={(id) => toggleTodo.mutate(id)}
-            />
+            <UrgentTodosList todos={urgentTodos} onToggleTodo={(id) => toggleTodo.mutate(id)} />
           ) : null
         }
         ListFooterComponent={
@@ -208,7 +213,7 @@ export default function HomeScreen() {
                     alignItems: "center",
                   }}
                 >
-            <Text style={{ color: "#FFFFFF", fontWeight: "600" }}>Create</Text>
+                  <Text style={{ color: "#FFFFFF", fontWeight: "600" }}>Create</Text>
                 </Pressable>
               </View>
             </ScrollView>

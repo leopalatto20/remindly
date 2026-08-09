@@ -15,11 +15,12 @@ export function TodoModal({ visible, todo, onSave, onClose }: TodoModalProps) {
   const colors = useThemeColors();
   const [title, setTitle] = useState(todo?.title ?? "");
 
-  const defaultDate = new Date(Date.now() + 86400000);
-  defaultDate.setHours(12, 0, 0, 0);
-  const [selectedDate, setSelectedDate] = useState<Date>(
-    todo ? new Date(todo.due_date) : defaultDate,
-  );
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    if (todo) return new Date(todo.due_date);
+    const d = new Date(Date.now() + 86400000);
+    d.setHours(12, 0, 0, 0);
+    return d;
+  });
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -28,7 +29,9 @@ export function TodoModal({ visible, todo, onSave, onClose }: TodoModalProps) {
 
   function resetForm() {
     setTitle("");
-    setSelectedDate(defaultDate);
+    const d = new Date(Date.now() + 86400000);
+    d.setHours(12, 0, 0, 0);
+    setSelectedDate(d);
     setShowDatePicker(false);
     setShowTimePicker(false);
   }

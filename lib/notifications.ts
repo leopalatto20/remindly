@@ -70,16 +70,17 @@ export async function scheduleTodoNotification(
   // Cancel any existing notification for this todo first
   await cancelTodoNotification(todoId);
 
-  const identifier = await Notifications.scheduleNotificationAsync({
-    content: {
-      title,
-      body: getTimeContext(offset, dueDate),
-      data: { todoId, noteId, type: "todo-reminder" },
-    },
-    trigger: { type: SchedulableTriggerInputTypes.DATE, date: fireDate },
-  });
-
-  const map = await getNotificationMap();
+  const [identifier, map] = await Promise.all([
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title,
+        body: getTimeContext(offset, dueDate),
+        data: { todoId, noteId, type: "todo-reminder" },
+      },
+      trigger: { type: SchedulableTriggerInputTypes.DATE, date: fireDate },
+    }),
+    getNotificationMap(),
+  ]);
   map[String(todoId)] = identifier;
   await saveNotificationMap(map);
 }
@@ -101,13 +102,14 @@ export async function cancelAllNotifications(): Promise<void> {
 
 export async function rescheduleAllNotifications(): Promise<void> {
   const offset = await getReminderOffset();
+
   if (offset === 0) {
     await cancelAllNotifications();
     return;
   }
 
-  // Cancel existing notifications, then reschedule from DB
-  await cancelAllNotifications();
+  // Cancel existing notifications
+  await Notifications.cancelAllScheduledNotificationsAsync();
 
   const db = await getDb();
   const todos = await db.getAllAsync<{
@@ -118,26 +120,34 @@ export async function rescheduleAllNotifications(): Promise<void> {
   }>("SELECT id, title, due_date, note_id FROM todos WHERE completed = 0");
 
   const now = new Date();
+  const updatedMap: Record<string, string> = {};
+
+  const schedulePromises: Promise<{ todoId: string; identifier: string } | null>[] = [];
   for (const todo of todos) {
     const due = new Date(todo.due_date);
-    if (due <= now) continue;
-
     const fireDate = new Date(due.getTime() - offset * 60 * 60 * 1000);
-    if (fireDate <= now) continue;
-
-    const identifier = await Notifications.scheduleNotificationAsync({
-      content: {
-        title: todo.title,
-        body: getTimeContext(offset, todo.due_date),
-        data: { todoId: todo.id, noteId: todo.note_id, type: "todo-reminder" },
-      },
-      trigger: { type: SchedulableTriggerInputTypes.DATE, date: fireDate },
-    });
-
-    const map = await getNotificationMap();
-    map[String(todo.id)] = identifier;
-    await saveNotificationMap(map);
+    if (due > now && fireDate > now) {
+      schedulePromises.push(
+        Notifications.scheduleNotificationAsync({
+          content: {
+            title: todo.title,
+            body: getTimeContext(offset, todo.due_date),
+            data: { todoId: todo.id, noteId: todo.note_id, type: "todo-reminder" },
+          },
+          trigger: { type: SchedulableTriggerInputTypes.DATE, date: fireDate },
+        }).then((identifier) => ({ todoId: String(todo.id), identifier })),
+      );
+    }
   }
+
+  const scheduleResults = await Promise.all(schedulePromises);
+  for (const result of scheduleResults) {
+    if (result) {
+      updatedMap[result.todoId] = result.identifier;
+    }
+  }
+
+  await saveNotificationMap(updatedMap);
 }
 
 export function configureNotificationHandler(): void {

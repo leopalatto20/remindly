@@ -36,13 +36,16 @@ export default function NoteDetailScreen() {
   const [todoListVisible, setTodoListVisible] = useState(false);
   const [todoModalVisible, setTodoModalVisible] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
-  const [returnToList, setReturnToList] = useState(false);
+  const returnToListRef = useRef(false);
 
   // Track unsaved changes for save-on-unmount
   const titleRef = useRef(title);
-  titleRef.current = title;
   const bodyRef = useRef(body);
-  bodyRef.current = body;
+
+  useEffect(() => {
+    titleRef.current = title;
+    bodyRef.current = body;
+  }, [title, body]);
 
   // Sync state when note loads
   useEffect(() => {
@@ -52,7 +55,7 @@ export default function NoteDetailScreen() {
       setIsEditing(false);
       setIsEditingTitle(false);
     }
-  }, [note?.id]);
+  }, [note]);
 
   // Save on unmount as safety net
   useFocusEffect(
@@ -62,7 +65,7 @@ export default function NoteDetailScreen() {
           updateNote.mutate({ id: note.id, title: titleRef.current, body: bodyRef.current });
         }
       };
-    }, [note?.id]),
+    }, [note, updateNote]),
   );
 
   function handleSave() {
@@ -108,14 +111,14 @@ export default function NoteDetailScreen() {
 
   function handleTapTodo(todo: Todo) {
     setEditingTodo(todo);
-    setReturnToList(true);
+    returnToListRef.current = true;
     setTodoListVisible(false);
     setTimeout(() => setTodoModalVisible(true), 200);
   }
 
   function handleAddTodo() {
     setEditingTodo(null);
-    setReturnToList(true);
+    returnToListRef.current = true;
     setTodoListVisible(false);
     setTimeout(() => setTodoModalVisible(true), 200);
   }
@@ -245,23 +248,25 @@ export default function NoteDetailScreen() {
           visible={todoModalVisible}
           todo={editingTodo}
           onSave={(title, dueDate) => {
-            const mutation = editingTodo
-              ? updateTodo.mutate({ id: editingTodo.id, title, dueDate })
-              : createTodo.mutate({ title, dueDate, noteId: note.id });
+            if (editingTodo) {
+              updateTodo.mutate({ id: editingTodo.id, title, dueDate });
+            } else {
+              createTodo.mutate({ title, dueDate, noteId: note.id });
+            }
 
             // Both mutations auto-invalidate via onSuccess
             setTodoModalVisible(false);
             setEditingTodo(null);
-            if (returnToList) {
-              setReturnToList(false);
+            if (returnToListRef.current) {
+              returnToListRef.current = false;
               setTimeout(() => setTodoListVisible(true), 200);
             }
           }}
           onClose={() => {
             setTodoModalVisible(false);
             setEditingTodo(null);
-            if (returnToList) {
-              setReturnToList(false);
+            if (returnToListRef.current) {
+              returnToListRef.current = false;
               setTimeout(() => setTodoListVisible(true), 200);
             }
           }}

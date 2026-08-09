@@ -2,7 +2,6 @@ import {
   createTodo as dbCreateTodo,
   updateTodo as dbUpdateTodo,
   toggleTodoCompleted as dbToggleTodoCompleted,
-  deleteTodo as dbDeleteTodo,
   getTodo,
 } from "./db/todos";
 import { scheduleTodoNotification, cancelTodoNotification } from "./notifications";
@@ -37,9 +36,4 @@ export async function toggleTodoCompleted(id: number): Promise<void> {
     // Was incomplete → now completed → cancel
     await cancelTodoNotification(id);
   }
-}
-
-export async function deleteTodo(id: number): Promise<void> {
-  await dbDeleteTodo(id);
-  await cancelTodoNotification(id);
 }

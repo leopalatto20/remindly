@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Alert, FlatList, Modal, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Pressable, ScrollView } from "react-native-gesture-handler";
@@ -13,6 +13,132 @@ import { DynamicIcon } from "../../lib/icons/DynamicIcon";
 import { ThemedScreen } from "../../components/ui/ThemedScreen";
 import { SwipeableDeleteAction } from "../../components/ui/SwipeableDeleteAction";
 import { useThemeColors } from "../../lib/theme/colors";
+
+const NOTE_ITEM_STYLE = {
+  padding: 16,
+  borderRadius: 12,
+  marginBottom: 8,
+};
+
+const ICON_CONTAINER_STYLE = {
+  width: 48,
+  height: 48,
+  borderRadius: 24,
+  alignItems: "center" as const,
+  justifyContent: "center" as const,
+  marginRight: 12,
+};
+
+interface EditCategoryModalProps {
+  visible: boolean;
+  initialName: string;
+  initialIcon: string;
+  initialColor: string;
+  onClose: () => void;
+  onSave: (name: string, icon: string, color: string) => void;
+}
+
+function EditCategoryModal({
+  visible,
+  initialName,
+  initialIcon,
+  initialColor,
+  onClose,
+  onSave,
+}: EditCategoryModalProps) {
+  const colors = useThemeColors();
+  const [editName, setEditName] = useState(initialName);
+  const [editIcon, setEditIcon] = useState(initialIcon);
+  const [editColor, setEditColor] = useState(initialColor);
+
+  // Sync when initial values change (modal opened with new data)
+  useEffect(() => {
+    if (visible) {
+      setEditName(initialName);
+      setEditIcon(initialIcon);
+      setEditColor(initialColor);
+    }
+  }, [visible, initialName, initialIcon, initialColor]);
+
+  return (
+    <Modal visible={visible} transparent animationType="slide">
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          backgroundColor: "rgba(0,0,0,0.4)",
+        }}
+      >
+        <View
+          style={{
+            margin: 20,
+            backgroundColor: colors.background,
+            borderRadius: 16,
+            padding: 20,
+            maxHeight: "80%",
+          }}
+        >
+          <ScrollView>
+            <Text
+              style={{ fontSize: 20, fontWeight: "bold", marginBottom: 16, color: colors.text }}
+            >
+              Edit Category
+            </Text>
+            <TextInput
+              placeholder="Category name"
+              value={editName}
+              onChangeText={setEditName}
+              style={{
+                padding: 12,
+                borderWidth: 1,
+                borderColor: colors.border,
+                borderRadius: 10,
+                fontSize: 16,
+                marginBottom: 16,
+                color: colors.text,
+              }}
+              placeholderTextColor={colors.textSecondary}
+            />
+            <IconPicker selected={editIcon} onSelect={setEditIcon} />
+            <View style={{ height: 16 }} />
+            <ColorPicker selected={editColor} onSelect={setEditColor} />
+            <View style={{ height: 16 }} />
+            <View style={{ flexDirection: "row", gap: 8 }}>
+              <Pressable
+                onPress={onClose}
+                style={{
+                  padding: 12,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  flex: 1,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ color: colors.text }}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  if (!editName.trim()) return;
+                  onSave(editName.trim(), editIcon, editColor);
+                }}
+                style={{
+                  padding: 12,
+                  borderRadius: 10,
+                  backgroundColor: colors.primary,
+                  flex: 1,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ color: "#fff", fontWeight: "600" }}>Save</Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
+}
 
 export default function CategoryDetailScreen() {
   const colors = useThemeColors();
@@ -29,9 +155,7 @@ export default function CategoryDetailScreen() {
   const [showCreate, setShowCreate] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [showEdit, setShowEdit] = useState(false);
-  const [editName, setEditName] = useState("");
-  const [editIcon, setEditIcon] = useState("Book");
-  const [editColor, setEditColor] = useState("#007AFF");
+  const [editInitial, setEditInitial] = useState({ name: "", icon: "Book", color: "#007AFF" });
 
   function handleCreateNote() {
     if (!newTitle.trim() || !category) return;
@@ -47,16 +171,41 @@ export default function CategoryDetailScreen() {
     );
   }
 
-  function handleDeleteNote(item: { id: number; title: string }) {
-    Alert.alert("Delete Note", `Delete "${item.title}"?`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: () => deleteNote.mutate(item.id),
-      },
-    ]);
-  }
+  const handleDeleteNote = useCallback(
+    (item: { id: number; title: string }) => {
+      Alert.alert("Delete Note", `Delete "${item.title}"?`, [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteNote.mutate(item.id),
+        },
+      ]);
+    },
+    [deleteNote],
+  );
+
+  const renderNoteItem = useCallback(
+    ({ item }: { item: { id: number; title: string; created_at: string } }) => (
+      <SwipeableDeleteAction onDelete={() => handleDeleteNote(item)}>
+        <Pressable
+          onPress={() => router.push(`/note/${item.id}`)}
+          style={[NOTE_ITEM_STYLE, { backgroundColor: colors.card }]}
+        >
+          <Text style={{ fontSize: 16, fontWeight: "600", color: colors.text }}>{item.title}</Text>
+          <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4 }}>
+            Created:{" "}
+            {new Date(item.created_at).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
+          </Text>
+        </Pressable>
+      </SwipeableDeleteAction>
+    ),
+    [colors.card, colors.text, colors.textSecondary, handleDeleteNote],
+  );
 
   if (!category) {
     return (
@@ -90,21 +239,13 @@ export default function CategoryDetailScreen() {
             backgroundColor: category.color + "15",
           }}
         >
-          <View
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 24,
-              backgroundColor: category.color + "20",
-              alignItems: "center",
-              justifyContent: "center",
-              marginRight: 12,
-            }}
-          >
+          <View style={[ICON_CONTAINER_STYLE, { backgroundColor: category.color + "20" }]}>
             <DynamicIcon name={category.icon} size={24} color={category.color} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 22, fontWeight: "bold", color: colors.text }}>{category.name}</Text>
+            <Text style={{ fontSize: 22, fontWeight: "bold", color: colors.text }}>
+              {category.name}
+            </Text>
           </View>
           <Pressable
             onPress={() => {
@@ -127,9 +268,7 @@ export default function CategoryDetailScreen() {
           </Pressable>
           <Pressable
             onPress={() => {
-              setEditName(category.name);
-              setEditIcon(category.icon);
-              setEditColor(category.color);
+              setEditInitial({ name: category.name, icon: category.icon, color: category.color });
               setShowEdit(true);
             }}
           >
@@ -142,29 +281,7 @@ export default function CategoryDetailScreen() {
             data={notes}
             keyExtractor={(item) => String(item.id)}
             contentContainerStyle={{ padding: 16 }}
-            renderItem={({ item }) => (
-              <SwipeableDeleteAction onDelete={() => handleDeleteNote(item)}>
-                <Pressable
-                  onPress={() => router.push(`/note/${item.id}`)}
-                  style={{
-                    padding: 16,
-                    backgroundColor: colors.card,
-                    borderRadius: 12,
-                    marginBottom: 8,
-                  }}
-                >
-                  <Text style={{ fontSize: 16, fontWeight: "600", color: colors.text }}>{item.title}</Text>
-                  <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4 }}>
-                    Created:{" "}
-                    {new Date(item.created_at).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </Text>
-                </Pressable>
-              </SwipeableDeleteAction>
-            )}
+            renderItem={renderNoteItem}
             ListEmptyComponent={
               <Text style={{ color: colors.textSecondary, textAlign: "center", paddingTop: 20 }}>
                 No notes yet
@@ -245,83 +362,20 @@ export default function CategoryDetailScreen() {
           </Pressable>
         )}
 
-        <Modal visible={showEdit} transparent animationType="slide">
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              backgroundColor: "rgba(0,0,0,0.4)",
-            }}
-          >
-            <View
-              style={{
-                margin: 20,
-                backgroundColor: colors.background,
-                borderRadius: 16,
-                padding: 20,
-                maxHeight: "80%",
-              }}
-            >
-              <ScrollView>
-                <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 16, color: colors.text }}>
-                  Edit Category
-                </Text>
-                <TextInput
-                  placeholder="Category name"
-                  value={editName}
-                  onChangeText={setEditName}
-                  style={{
-                    padding: 12,
-                    borderWidth: 1,
-                    borderColor: colors.border,
-                    borderRadius: 10,
-                    fontSize: 16,
-                    marginBottom: 16,
-                    color: colors.text,
-                  }}
-                  placeholderTextColor={colors.textSecondary}
-                />
-                <IconPicker selected={editIcon} onSelect={setEditIcon} />
-                <View style={{ height: 16 }} />
-                <ColorPicker selected={editColor} onSelect={setEditColor} />
-                <View style={{ height: 16 }} />
-                <View style={{ flexDirection: "row", gap: 8 }}>
-                  <Pressable
-                    onPress={() => setShowEdit(false)}
-                    style={{
-                      padding: 12,
-                      borderRadius: 10,
-                      borderWidth: 1,
-                      borderColor: colors.border,
-                      flex: 1,
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text style={{ color: colors.text }}>Cancel</Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => {
-                      if (!editName.trim() || !category) return;
-                      updateCategory.mutate(
-                        { id: category.id, name: editName.trim(), icon: editIcon, color: editColor },
-                        { onSuccess: () => setShowEdit(false) },
-                      );
-                    }}
-                    style={{
-                      padding: 12,
-                      borderRadius: 10,
-                      backgroundColor: colors.primary,
-                      flex: 1,
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text style={{ color: "#fff", fontWeight: "600" }}>Save</Text>
-                  </Pressable>
-                </View>
-              </ScrollView>
-            </View>
-          </View>
-        </Modal>
+        <EditCategoryModal
+          visible={showEdit}
+          initialName={editInitial.name}
+          initialIcon={editInitial.icon}
+          initialColor={editInitial.color}
+          onClose={() => setShowEdit(false)}
+          onSave={(name, icon, color) => {
+            if (!category) return;
+            updateCategory.mutate(
+              { id: category.id, name, icon, color },
+              { onSuccess: () => setShowEdit(false) },
+            );
+          }}
+        />
       </SafeAreaView>
     </ThemedScreen>
   );

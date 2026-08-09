@@ -1,4 +1,4 @@
-import { Modal, Pressable, ScrollView, Text, View } from "react-native";
+import { FlatList, Modal, Pressable, Text, View } from "react-native";
 import { X, Plus } from "lucide-react-native";
 import { useThemeColors } from "../../lib/theme/colors";
 import type { Todo } from "../../lib/db/todos";
@@ -22,6 +22,54 @@ export function TodoListModal({
 }: TodoListModalProps) {
   const colors = useThemeColors();
   const completedCount = todos.filter((t) => t.completed).length;
+
+  const renderTodoItem = ({ item: todo }: { item: Todo }) => (
+    <Pressable
+      onPress={() => onTapTodo(todo)}
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
+        opacity: todo.completed ? 0.5 : 1,
+      }}
+    >
+      <Pressable
+        onPress={() => onToggleTodo(todo.id)}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        style={{
+          width: 22,
+          height: 22,
+          borderRadius: 11,
+          borderWidth: 2,
+          borderColor: todo.completed ? colors.success : colors.border,
+          backgroundColor: todo.completed ? colors.success : "transparent",
+          marginRight: 14,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      />
+      <View style={{ flex: 1 }}>
+        <Text
+          style={{
+            fontSize: 16,
+            textDecorationLine: todo.completed ? "line-through" : "none",
+            color: colors.text,
+          }}
+        >
+          {todo.title}
+        </Text>
+        <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 3 }}>
+          {new Date(todo.due_date).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })}
+        </Text>
+      </View>
+    </Pressable>
+  );
 
   return (
     <Modal visible={visible} transparent animationType="slide">
@@ -61,56 +109,12 @@ export function TodoListModal({
             </View>
           </View>
 
-          <ScrollView style={{ paddingHorizontal: 20, paddingTop: 12 }}>
-            {todos.map((todo) => (
-              <Pressable
-                key={todo.id}
-                onPress={() => onTapTodo(todo)}
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  paddingVertical: 12,
-                  borderBottomWidth: 1,
-                  borderBottomColor: colors.border,
-                  opacity: todo.completed ? 0.5 : 1,
-                }}
-              >
-                <Pressable
-                  onPress={() => onToggleTodo(todo.id)}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  style={{
-                    width: 22,
-                    height: 22,
-                    borderRadius: 11,
-                    borderWidth: 2,
-                    borderColor: todo.completed ? colors.success : colors.border,
-                    backgroundColor: todo.completed ? colors.success : "transparent",
-                    marginRight: 14,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                />
-                <View style={{ flex: 1 }}>
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      textDecorationLine: todo.completed ? "line-through" : "none",
-                      color: colors.text,
-                    }}
-                  >
-                    {todo.title}
-                  </Text>
-                  <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 3 }}>
-                    {new Date(todo.due_date).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </Text>
-                </View>
-              </Pressable>
-            ))}
-            {todos.length === 0 && (
+          <FlatList
+            data={todos}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={renderTodoItem}
+            style={{ paddingHorizontal: 20, paddingTop: 12 }}
+            ListEmptyComponent={
               <View style={{ alignItems: "center", paddingVertical: 40 }}>
                 <Text style={{ color: colors.textSecondary, fontSize: 15 }}>No todos yet</Text>
                 <Pressable onPress={onAddTodo} style={{ marginTop: 12 }}>
@@ -119,8 +123,8 @@ export function TodoListModal({
                   </Text>
                 </Pressable>
               </View>
-            )}
-          </ScrollView>
+            }
+          />
         </View>
       </View>
     </Modal>

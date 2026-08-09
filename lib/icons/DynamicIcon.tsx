@@ -32,7 +32,7 @@ const iconRegistry: Record<string, LucideIcon> = {
   Trash2: Lucide.Trash2,
 };
 
-export function getLucideIcon(name: string): LucideIcon | null {
+function getLucideIcon(name: string): LucideIcon | null {
   return iconRegistry[name] ?? null;
 }
 
