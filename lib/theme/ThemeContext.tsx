@@ -19,6 +19,7 @@ const ThemeContext = createContext<ThemeContextValue>({
 const STORAGE_KEY = "remindly-theme-mode";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  // SAFETY: useColorScheme defaults to "light"; both values are "light" | "dark"
   const system = (useColorScheme() ?? "light") as "light" | "dark";
   const [mode, setModeState] = useState<ThemeMode>("system");
 

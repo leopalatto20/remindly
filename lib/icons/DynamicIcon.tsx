@@ -1,7 +1,7 @@
 import * as Lucide from "lucide-react-native";
 import type { LucideIcon } from "lucide-react-native";
 
-const iconRegistry: Record<string, LucideIcon> = {
+const iconRegistry = {
   Book: Lucide.Book,
   Pen: Lucide.Pen,
   StickyNote: Lucide.StickyNote,
@@ -33,7 +33,8 @@ const iconRegistry: Record<string, LucideIcon> = {
 };
 
 function getLucideIcon(name: string): LucideIcon | null {
-  return iconRegistry[name] ?? null;
+  // SAFETY: name may not be a known key; null is returned in that case
+  return iconRegistry[name as keyof typeof iconRegistry] ?? null;
 }
 
 interface DynamicIconProps {

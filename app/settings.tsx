@@ -26,7 +26,7 @@ const themeOptions: { label: string; value: ThemeMode }[] = [
   { label: "System", value: "system" },
 ];
 
-const REMINDER_LABELS: Record<ReminderOffset, string> = {
+const REMINDER_LABELS = {
   0: "Off",
   1: "1 hour before",
   2: "2 hours before",
@@ -34,7 +34,7 @@ const REMINDER_LABELS: Record<ReminderOffset, string> = {
   4: "4 hours before",
   5: "5 hours before",
   6: "6 hours before",
-};
+} satisfies Record<ReminderOffset, string>;
 
 export default function SettingsScreen() {
   const colors = useThemeColors();

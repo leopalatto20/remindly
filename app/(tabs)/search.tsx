@@ -361,6 +361,7 @@ function SearchResultItem({ item }: SearchResultItemProps) {
   const colors = useThemeColors();
 
   if (item.type === "header") {
+    // SAFETY: type === "header" guarantees data is a string
     return (
       <Text
         style={{
@@ -375,6 +376,7 @@ function SearchResultItem({ item }: SearchResultItemProps) {
       </Text>
     );
   }
+  // SAFETY: type !== "header" means data is SearchResult
   const r = item.data as SearchResult;
   return (
     <Pressable

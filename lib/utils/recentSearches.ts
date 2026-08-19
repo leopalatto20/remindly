@@ -7,6 +7,7 @@ export async function getRecentSearches(): Promise<string[]> {
   const raw = await AsyncStorage.getItem(STORAGE_KEY);
   if (!raw) return [];
   try {
+    // SAFETY: JSON.parse(raw) returns unknown; catch handles parse errors
     return JSON.parse(raw) as string[];
   } catch {
     return [];

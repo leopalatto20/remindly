@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Modal, Platform, Pressable, Text, TextInput, View } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import type { Todo } from "../../lib/db/todos";
 import { useThemeColors } from "../../lib/theme/colors";
 
@@ -48,7 +48,7 @@ export function TodoModal({ visible, todo, onSave, onClose }: TodoModalProps) {
     onClose();
   }
 
-  function onDateChange(_event: unknown, date?: Date) {
+  function onDateChange(_event: DateTimePickerEvent, date?: Date) {
     if (Platform.OS === "android") {
       setShowDatePicker(false);
     }
@@ -60,7 +60,7 @@ export function TodoModal({ visible, todo, onSave, onClose }: TodoModalProps) {
     }
   }
 
-  function onTimeChange(_event: unknown, date?: Date) {
+  function onTimeChange(_event: DateTimePickerEvent, date?: Date) {
     if (Platform.OS === "android") {
       setShowTimePicker(false);
     }

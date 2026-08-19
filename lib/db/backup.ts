@@ -14,6 +14,13 @@ export interface ValidationError {
   message: string;
 }
 
+// Named types for the validation boundary
+export interface RawBackupObject {
+  categories: unknown;
+  notes: unknown;
+  todos: unknown;
+}
+
 export function backupFilename(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -21,13 +28,7 @@ export function backupFilename(date: Date): string {
   return `remindly-backup-${y}-${m}-${d}.json`;
 }
 
-function validateBackupData(data: unknown): ValidationError | null {
-  if (!data || typeof data !== "object") {
-    return { message: "Backup must be a JSON object" };
-  }
-
-  const obj = data as Record<string, unknown>;
-
+function validateBackupObject(obj: RawBackupObject): ValidationError | null {
   if (!Array.isArray(obj.categories)) {
     return { message: "Missing or invalid 'categories' array" };
   }
@@ -40,37 +41,37 @@ function validateBackupData(data: unknown): ValidationError | null {
 
   for (let i = 0; i < obj.categories.length; i++) {
     const c = obj.categories[i];
-    if (!c || typeof c !== "object") {
+    if (!(c instanceof Object)) {
       return { message: `categories[${i}] is not an object` };
     }
-    const cat = c as Record<string, unknown>;
-    const missing = ["id", "name", "icon", "color"].filter((f) => cat[f] === undefined);
-    if (missing.length > 0) {
-      return { message: `categories[${i}] missing required fields: ${missing.join(", ")}` };
+    // SAFETY: instanceof Object confirms c is an object with the expected fields
+    const cat = c as { id: unknown; name: unknown; icon: unknown; color: unknown };
+    if (cat.id === undefined || cat.name === undefined || cat.icon === undefined || cat.color === undefined) {
+      return { message: `categories[${i}] missing required fields` };
     }
   }
 
   for (let i = 0; i < obj.notes.length; i++) {
     const n = obj.notes[i];
-    if (!n || typeof n !== "object") {
+    if (!(n instanceof Object)) {
       return { message: `notes[${i}] is not an object` };
     }
-    const note = n as Record<string, unknown>;
-    const missing = ["id", "title", "category_id"].filter((f) => note[f] === undefined);
-    if (missing.length > 0) {
-      return { message: `notes[${i}] missing required fields: ${missing.join(", ")}` };
+    // SAFETY: instanceof Object confirms n is an object with the expected fields
+    const note = n as { id: unknown; title: unknown; body: unknown; category_id: unknown };
+    if (note.id === undefined || note.title === undefined || note.category_id === undefined) {
+      return { message: `notes[${i}] missing required fields` };
     }
   }
 
   for (let i = 0; i < obj.todos.length; i++) {
     const t = obj.todos[i];
-    if (!t || typeof t !== "object") {
+    if (!(t instanceof Object)) {
       return { message: `todos[${i}] is not an object` };
     }
-    const todo = t as Record<string, unknown>;
-    const missing = ["id", "title", "due_date", "note_id"].filter((f) => todo[f] === undefined);
-    if (missing.length > 0) {
-      return { message: `todos[${i}] missing required fields: ${missing.join(", ")}` };
+    // SAFETY: instanceof Object confirms t is an object with the expected fields
+    const todo = t as { id: unknown; title: unknown; due_date: unknown; completed: unknown; note_id: unknown };
+    if (todo.id === undefined || todo.title === undefined || todo.due_date === undefined || todo.note_id === undefined) {
+      return { message: `todos[${i}] missing required fields` };
     }
   }
 
@@ -106,11 +107,17 @@ export async function importData(
     return { success: false, error: "Invalid JSON" };
   }
 
-  const validationError = validateBackupData(parsed);
+  if (!(parsed instanceof Object)) {
+    return { success: false, error: "Invalid backup format" };
+  }
+  // SAFETY: instanceof Object confirms parsed is a non-null object with the expected shape
+  const obj = parsed as RawBackupObject;
+  const validationError = validateBackupObject(obj);
   if (validationError) {
     return { success: false, error: validationError.message };
   }
 
+  // SAFETY: validateBackupShape confirmed the required fields exist
   const data = parsed as BackupData;
 
   const db = await getDb();

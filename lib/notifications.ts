@@ -24,7 +24,9 @@ export async function getReminderOffset(): Promise<ReminderOffset> {
   const stored = await AsyncStorage.getItem(REMINDER_SETTING_KEY);
   if (!stored) return 0;
   const offset = parseInt(stored, 10);
-  if ([0, 1, 2, 3, 4, 5, 6].includes(offset)) return offset as ReminderOffset;
+  if ([0, 1, 2, 3, 4, 5, 6].includes(offset))
+    // SAFETY: includes() confirms offset is a valid ReminderOffset value
+    return offset as ReminderOffset;
   return 0;
 }
 
