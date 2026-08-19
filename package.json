@@ -30,24 +30,21 @@
     "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
+    "@oxlint/plugins": "^1.79.0",
     "@types/react": "~19.1.0",
-    "eslint": "^10.7.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.6",
+    "oxlint": "^1.79.0",
     "prettier": "^3.9.5",
-    "typescript": "5.9.2",
-    "typescript-eslint": "^8.64.0"
+    "typescript": "5.9.2"
   },
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
     "typecheck": "npx tsc --noEmit"
   },
   "private": true,
