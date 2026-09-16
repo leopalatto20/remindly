@@ -46,7 +46,12 @@ function validateBackupObject(obj: RawBackupObject): ValidationError | null {
     }
     // SAFETY: instanceof Object confirms c is an object with the expected fields
     const cat = c as { id: unknown; name: unknown; icon: unknown; color: unknown };
-    if (cat.id === undefined || cat.name === undefined || cat.icon === undefined || cat.color === undefined) {
+    if (
+      cat.id === undefined ||
+      cat.name === undefined ||
+      cat.icon === undefined ||
+      cat.color === undefined
+    ) {
       return { message: `categories[${i}] missing required fields` };
     }
   }
@@ -69,8 +74,19 @@ function validateBackupObject(obj: RawBackupObject): ValidationError | null {
       return { message: `todos[${i}] is not an object` };
     }
     // SAFETY: instanceof Object confirms t is an object with the expected fields
-    const todo = t as { id: unknown; title: unknown; due_date: unknown; completed: unknown; note_id: unknown };
-    if (todo.id === undefined || todo.title === undefined || todo.due_date === undefined || todo.note_id === undefined) {
+    const todo = t as {
+      id: unknown;
+      title: unknown;
+      due_date: unknown;
+      completed: unknown;
+      note_id: unknown;
+    };
+    if (
+      todo.id === undefined ||
+      todo.title === undefined ||
+      todo.due_date === undefined ||
+      todo.note_id === undefined
+    ) {
       return { message: `todos[${i}] missing required fields` };
     }
   }

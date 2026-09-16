@@ -3,8 +3,5 @@
   "compilerOptions": {
     "strict": true
   },
-  "exclude": [
-    "node_modules",
-    "tools/oxlint/anti-slop"
-  ]
+  "exclude": ["node_modules", "tools/oxlint/anti-slop"]
 }
