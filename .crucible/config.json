@@ -1,0 +1,20 @@
+{
+  "maxRepairs": 3,
+  "steps": [
+    {
+      "type": "agent",
+      "name": "build",
+      "agent": "IMPLEMENTER"
+    },
+    {
+      "type": "check",
+      "name": "lint",
+      "cmd": "bun run lint"
+    },
+    {
+      "type": "agent",
+      "name": "review",
+      "agent": "REVIEWER"
+    }
+  ]
+}
